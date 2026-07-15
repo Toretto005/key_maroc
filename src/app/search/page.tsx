@@ -47,7 +47,7 @@ export default function SearchResults() {
   const userLng = lng ? parseFloat(lng) : 0;
 
   return (
-    <div className="bg-slate-50 flex flex-col" style={{ height: 'calc(100vh - 64px)' }}>
+    <div className="bg-slate-50 flex flex-col h-full">
       {/* Search sub-header */}
       <div className="flex items-center gap-3 px-4 py-3 bg-white border-b border-slate-200 flex-shrink-0">
         <div className="flex-1 relative">

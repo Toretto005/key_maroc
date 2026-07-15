@@ -50,6 +50,13 @@ export default function ServicesSection({ providerId, providerUserId }: Props) {
     fetchServices();
     supabase.auth.getUser().then(({ data: { user } }) => {
       setIsOwner(!!user && user.id === providerUserId);
+      if (user) {
+        setReqForm(prev => ({
+          ...prev,
+          name: user.user_metadata?.full_name || prev.name,
+          phone: user.user_metadata?.phone || prev.phone
+        }));
+      }
     });
   }, [fetchServices, providerUserId, supabase.auth]);
 

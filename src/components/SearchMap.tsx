@@ -28,17 +28,7 @@ const providerIcon = new L.Icon({
   popupAnchor: [1, -34],
 });
 
-function FitBounds({ positions, selectedId }: { positions: [number, number][], selectedId?: number | null }) {
-  const map = useMap();
-  useEffect(() => {
-    // Only fit bounds initially or if nothing is selected
-    if (positions.length > 0 && !selectedId) {
-      const bounds = L.latLngBounds(positions);
-      map.fitBounds(bounds, { padding: [50, 50], maxZoom: 14 });
-    }
-  }, [map, positions, selectedId]);
-  return null;
-}
+
 
 function ZoomToSelected({ providers, selectedId }: { providers: Provider[], selectedId?: number | null }) {
   const map = useMap();
@@ -84,7 +74,7 @@ export default function SearchMap({ userLat, userLng, providers, selectedId }: P
   return (
     <MapContainer
       center={[userLat, userLng]}
-      zoom={13}
+      zoom={16}
       style={{ height: "100%", width: "100%" }}
       scrollWheelZoom={true}
     >
@@ -119,7 +109,6 @@ export default function SearchMap({ userLat, userLng, providers, selectedId }: P
         </Marker>
       ))}
 
-      <FitBounds positions={allPositions} selectedId={selectedId} />
       <ZoomToSelected providers={providers} selectedId={selectedId} />
     </MapContainer>
   );
