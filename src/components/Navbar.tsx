@@ -47,6 +47,19 @@ export default function Navbar() {
             Sarouti
           </Link>
 
+          {/* Center Navigation Menu */}
+          <div className="hidden md:flex items-center gap-6 absolute left-1/2 -translate-x-1/2">
+            <Link href="/search" className="text-sm font-semibold text-slate-600 hover:text-blue-600 transition-colors">
+              Find a Locksmith
+            </Link>
+            <Link href="/about" className="text-sm font-semibold text-slate-600 hover:text-blue-600 transition-colors">
+              About Us
+            </Link>
+            <Link href="/contact" className="text-sm font-semibold text-slate-600 hover:text-blue-600 transition-colors">
+              Contact
+            </Link>
+          </div>
+
           {/* Right side */}
           <div className="flex items-center gap-3">
             {loading ? (
