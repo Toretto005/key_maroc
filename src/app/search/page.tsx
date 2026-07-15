@@ -31,6 +31,8 @@ export default function SearchResults() {
   const [loading, setLoading] = useState(true);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [locating, setLocating] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searching, setSearching] = useState(false);
   const [userRole, setUserRole] = useState<string | null>(null);
 
   const supabase = createClient();
@@ -73,6 +75,32 @@ export default function SearchResults() {
     }
   };
 
+  const handleTextSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!searchQuery.trim()) return;
+    
+    setSearching(true);
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery + ", Morocco")}`);
+      const data = await res.json();
+      
+      if (data && data.length > 0) {
+        const lat = data[0].lat;
+        const lng = data[0].lon;
+        // Pushing the route will re-run the fetch for providers
+        router.push(`/search?lat=${lat}&lng=${lng}`);
+        setSearchQuery(""); // clear input after successful search
+        setSelectedId(null);
+      } else {
+        alert("Location not found. Please try a different city name.");
+      }
+    } catch (err) {
+      alert("Search failed. Please try again.");
+    } finally {
+      setSearching(false);
+    }
+  };
+
   useEffect(() => {
     if (lat && lng) {
       fetch(`/api/providers/nearby?lat=${lat}&lng=${lng}`)
@@ -94,27 +122,33 @@ export default function SearchResults() {
     <div className="bg-slate-50 flex flex-col h-full">
       {/* Search sub-header */}
       <div className="flex items-center gap-3 px-4 py-3 bg-white border-b border-slate-200 flex-shrink-0">
-        <div className="flex-1 relative flex items-center gap-2">
+        <form onSubmit={handleTextSearch} className="flex-1 relative flex items-center gap-2">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            {searching ? (
+              <Loader2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-600 animate-spin" />
+            ) : (
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            )}
             <input
               type="text"
-              readOnly
-              value={lat && lng ? "Current Location" : "Unknown Location"}
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:outline-none"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={lat && lng ? "Search for another city..." : "Enter your city or region..."}
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
             />
           </div>
           {(!lat || !lng) && (
             <button 
+              type="button"
               onClick={handleLocateMe}
-              disabled={locating}
+              disabled={locating || searching}
               className="flex items-center justify-center px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold transition-all disabled:opacity-70 whitespace-nowrap"
             >
               {locating ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : <MapPin className="w-4 h-4 mr-1.5" />}
               Locate Me
             </button>
           )}
-        </div>
+        </form>
         <button className="flex items-center gap-2 px-3 py-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors text-sm font-medium">
           <Filter className="w-4 h-4" />
           <span className="hidden sm:inline">Filters</span>

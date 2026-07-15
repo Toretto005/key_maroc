@@ -8,6 +8,32 @@ import { useState } from 'react';
 export default function Home() {
   const router = useRouter();
   const [locating, setLocating] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searching, setSearching] = useState(false);
+
+  const handleTextSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!searchQuery.trim()) return;
+    
+    setSearching(true);
+    try {
+      // Append Morocco to improve local results
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery + ", Morocco")}`);
+      const data = await res.json();
+      
+      if (data && data.length > 0) {
+        const lat = data[0].lat;
+        const lng = data[0].lon;
+        router.push(`/search?lat=${lat}&lng=${lng}`);
+      } else {
+        alert("Location not found. Please try a different city name.");
+        setSearching(false); // only stop loading on fail, on success we want it to stay loading while pushing
+      }
+    } catch (err) {
+      alert("Search failed. Please try again.");
+      setSearching(false);
+    }
+  };
 
   const handleLocateMe = () => {
     setLocating(true);
@@ -62,32 +88,37 @@ export default function Home() {
         </p>
 
         {/* Search Box */}
-        <div className="w-full max-w-2xl bg-white p-2 rounded-2xl shadow-lg border border-slate-200 flex flex-col sm:flex-row gap-2">
+        <form onSubmit={handleTextSearch} className="w-full max-w-2xl bg-white p-2 rounded-2xl shadow-lg border border-slate-200 flex flex-col sm:flex-row gap-2">
           <div className="relative flex-1 text-left">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
             <input 
               type="text" 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Enter your city or region..." 
               className="w-full pl-12 pr-4 py-4 rounded-xl border-none bg-transparent text-lg focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all placeholder:text-slate-400"
             />
           </div>
           <div className="flex gap-2">
             <button 
+              type="button"
               onClick={handleLocateMe}
-              disabled={locating}
+              disabled={locating || searching}
               className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 px-6 py-4 rounded-xl font-medium transition-colors"
             >
               {locating ? <Loader2 className="w-5 h-5 animate-spin" /> : <MapPin className="w-5 h-5" />}
               <span className="hidden sm:inline">{locating ? "Locating..." : "Locate Me"}</span>
             </button>
-            <Link 
-               href="/search"
-               className="flex-1 sm:flex-none flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl font-semibold transition-colors shadow-md shadow-blue-200"
+            <button 
+               type="submit"
+               disabled={searching || locating}
+               className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl font-semibold transition-colors shadow-md shadow-blue-200 disabled:opacity-70"
             >
-              Explore Map
-            </Link>
+              {searching && <Loader2 className="w-5 h-5 animate-spin" />}
+              Search
+            </button>
           </div>
-        </div>
+        </form>
 
         {/* How It Works - LockAtlas Inspired Timeline */}
         <div className="w-full mt-24 sm:mt-32">

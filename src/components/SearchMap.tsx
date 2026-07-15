@@ -120,6 +120,13 @@ export default function SearchMap({ userLat, userLng, providers, selectedId, def
     ...providers.map((p) => [p.lat, p.lng] as [number, number]),
   ];
 
+  // React to prop changes (e.g. when user uses text search in parent component)
+  useEffect(() => {
+    if (map) {
+      map.flyTo([userLat, userLng], defaultZoom);
+    }
+  }, [userLat, userLng, map, defaultZoom]);
+
   return (
     <div className="relative w-full h-full">
       <MapContainer
