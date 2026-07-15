@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { KeyRound, Loader2, Eye, EyeOff, ArrowRight } from 'lucide-react';
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get('redirect') || '/';
@@ -106,5 +106,15 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+import { Suspense } from 'react';
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-slate-900 flex items-center justify-center"><Loader2 className="w-8 h-8 text-blue-500 animate-spin" /></div>}>
+      <LoginForm />
+    </Suspense>
   );
 }

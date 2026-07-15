@@ -21,7 +21,7 @@ type Provider = {
   lng: number;
 };
 
-export default function SearchResults() {
+function SearchResultsContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const lat = searchParams.get('lat');
@@ -249,5 +249,15 @@ export default function SearchResults() {
         </div>
       </div>
     </div>
+  );
+}
+
+import { Suspense } from 'react';
+
+export default function SearchResults() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-slate-50 flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-blue-600" /></div>}>
+      <SearchResultsContent />
+    </Suspense>
   );
 }
