@@ -103,6 +103,13 @@ export default function Dashboard() {
           </div>
           <div className="flex gap-2">
             <Link 
+              href="/provider/services"
+              className="flex items-center gap-2 px-4 py-2 bg-blue-50 border border-blue-200 text-blue-700 rounded-xl font-medium hover:bg-blue-100 transition-colors shadow-sm text-sm"
+            >
+              <Wrench className="w-4 h-4" />
+              Manage Services
+            </Link>
+            <Link 
               href="/provider/edit"
               className="flex items-center gap-2 px-4 py-2 bg-amber-50 border border-amber-200 text-amber-700 rounded-xl font-medium hover:bg-amber-100 transition-colors shadow-sm text-sm"
             >
