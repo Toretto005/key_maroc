@@ -63,18 +63,20 @@ type Props = {
   userLng: number;
   providers: Provider[];
   selectedId?: number | null;
+  defaultZoom?: number;
+  showUserMarker?: boolean;
 };
 
-export default function SearchMap({ userLat, userLng, providers, selectedId }: Props) {
+export default function SearchMap({ userLat, userLng, providers, selectedId, defaultZoom = 16, showUserMarker = true }: Props) {
   const allPositions: [number, number][] = [
-    [userLat, userLng],
+    ...(showUserMarker ? [[userLat, userLng] as [number, number]] : []),
     ...providers.map((p) => [p.lat, p.lng] as [number, number]),
   ];
 
   return (
     <MapContainer
       center={[userLat, userLng]}
-      zoom={16}
+      zoom={defaultZoom}
       style={{ height: "100%", width: "100%" }}
       scrollWheelZoom={true}
     >
@@ -83,12 +85,14 @@ export default function SearchMap({ userLat, userLng, providers, selectedId }: P
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
 
-      {/* User location marker */}
-      <Marker position={[userLat, userLng]} icon={userIcon}>
-        <Popup>
-          <div className="font-semibold text-blue-600">📍 Your Location</div>
-        </Popup>
-      </Marker>
+      {/* User location marker (only show if location is known) */}
+      {showUserMarker && (
+        <Marker position={[userLat, userLng]} icon={userIcon}>
+          <Popup>
+            <div className="font-semibold text-blue-600">📍 Your Location</div>
+          </Popup>
+        </Marker>
+      )}
 
       {/* Provider markers */}
       {providers.map((provider) => (

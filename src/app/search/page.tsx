@@ -2,7 +2,7 @@
 
 import { Search, MapPin, Star, Phone, Filter, Loader2 } from 'lucide-react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 
@@ -22,12 +22,46 @@ type Provider = {
 
 export default function SearchResults() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const lat = searchParams.get('lat');
   const lng = searchParams.get('lng');
 
   const [providers, setProviders] = useState<Provider[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [locating, setLocating] = useState(false);
+
+  const handleLocateMe = () => {
+    setLocating(true);
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLocating(false);
+          router.push(`/search?lat=${position.coords.latitude}&lng=${position.coords.longitude}`);
+        },
+        async (error) => {
+          console.warn("GPS failed, falling back to IP location:", error);
+          try {
+            const res = await fetch("https://get.geojs.io/v1/ip/geo.json");
+            const data = await res.json();
+            if (data.latitude && data.longitude) {
+              router.push(`/search?lat=${data.latitude}&lng=${data.longitude}`);
+            } else {
+              throw new Error("Invalid IP location data");
+            }
+          } catch (ipError) {
+            alert("Could not get location. Please enable it in your browser or try on a secure connection.");
+          } finally {
+            setLocating(false);
+          }
+        },
+        { timeout: 10000, enableHighAccuracy: true }
+      );
+    } else {
+      alert("Geolocation is not supported by your browser.");
+      setLocating(false);
+    }
+  };
 
   useEffect(() => {
     if (lat && lng) {
@@ -50,14 +84,26 @@ export default function SearchResults() {
     <div className="bg-slate-50 flex flex-col h-full">
       {/* Search sub-header */}
       <div className="flex items-center gap-3 px-4 py-3 bg-white border-b border-slate-200 flex-shrink-0">
-        <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-          <input
-            type="text"
-            readOnly
-            value={lat && lng ? "Current Location" : "Unknown Location"}
-            className="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-200 bg-slate-50 text-sm"
-          />
+        <div className="flex-1 relative flex items-center gap-2">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <input
+              type="text"
+              readOnly
+              value={lat && lng ? "Current Location" : "Unknown Location"}
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:outline-none"
+            />
+          </div>
+          {(!lat || !lng) && (
+            <button 
+              onClick={handleLocateMe}
+              disabled={locating}
+              className="flex items-center justify-center px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold transition-all disabled:opacity-70 whitespace-nowrap"
+            >
+              {locating ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : <MapPin className="w-4 h-4 mr-1.5" />}
+              Locate Me
+            </button>
+          )}
         </div>
         <button className="flex items-center gap-2 px-3 py-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors text-sm font-medium">
           <Filter className="w-4 h-4" />
@@ -143,9 +189,14 @@ export default function SearchResults() {
               selectedId={selectedId}
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-slate-200 text-slate-500">
-              <p>Enable location to see the map.</p>
-            </div>
+            <SearchMap
+              userLat={31.7917}
+              userLng={-7.0926}
+              providers={providers}
+              selectedId={selectedId}
+              defaultZoom={5}
+              showUserMarker={false}
+            />
           )}
         </div>
       </div>
