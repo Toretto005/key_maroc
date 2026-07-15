@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import { useRouter } from "next/navigation";
+import { Locate, Loader2 } from "lucide-react";
 import L from "leaflet";
 
 // Fix default Leaflet marker icons broken by webpack
@@ -68,13 +70,49 @@ type Props = {
 };
 
 export default function SearchMap({ userLat, userLng, providers, selectedId, defaultZoom = 16, showUserMarker = true }: Props) {
+  const router = useRouter();
+  const [locating, setLocating] = useState(false);
+
+  const handleLocateMe = () => {
+    setLocating(true);
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLocating(false);
+          router.push(`/search?lat=${position.coords.latitude}&lng=${position.coords.longitude}`);
+        },
+        async (error) => {
+          console.warn("GPS failed, falling back to IP location:", error);
+          try {
+            const res = await fetch("https://get.geojs.io/v1/ip/geo.json");
+            const data = await res.json();
+            if (data.latitude && data.longitude) {
+              router.push(`/search?lat=${data.latitude}&lng=${data.longitude}`);
+            } else {
+              throw new Error("Invalid IP location data");
+            }
+          } catch (ipError) {
+            alert("Could not get location. Please enable it in your browser or try on a secure connection.");
+          } finally {
+            setLocating(false);
+          }
+        },
+        { timeout: 10000, enableHighAccuracy: true }
+      );
+    } else {
+      alert("Geolocation is not supported by your browser.");
+      setLocating(false);
+    }
+  };
+
   const allPositions: [number, number][] = [
     ...(showUserMarker ? [[userLat, userLng] as [number, number]] : []),
     ...providers.map((p) => [p.lat, p.lng] as [number, number]),
   ];
 
   return (
-    <MapContainer
+    <div className="relative w-full h-full">
+      <MapContainer
       center={[userLat, userLng]}
       zoom={defaultZoom}
       style={{ height: "100%", width: "100%" }}
@@ -115,5 +153,20 @@ export default function SearchMap({ userLat, userLng, providers, selectedId, def
 
       <ZoomToSelected providers={providers} selectedId={selectedId} />
     </MapContainer>
+
+    {/* Floating Locate Me Button */}
+    <button
+      onClick={handleLocateMe}
+      disabled={locating}
+      className="absolute bottom-6 right-6 z-[1000] w-12 h-12 bg-white rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.15)] flex items-center justify-center text-slate-700 hover:text-blue-600 hover:bg-slate-50 transition-all border border-slate-200"
+      title="Locate Me"
+    >
+      {locating ? (
+        <Loader2 className="w-5 h-5 animate-spin text-blue-600" />
+      ) : (
+        <Locate className="w-5 h-5" />
+      )}
+    </button>
+  </div>
   );
 }
