@@ -80,12 +80,12 @@ export default function Home() {
               {locating ? <Loader2 className="w-5 h-5 animate-spin" /> : <MapPin className="w-5 h-5" />}
               <span className="hidden sm:inline">{locating ? "Locating..." : "Locate Me"}</span>
             </button>
-            <button 
-               onClick={handleLocateMe}
+            <Link 
+               href="/search"
                className="flex-1 sm:flex-none flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl font-semibold transition-colors shadow-md shadow-blue-200"
             >
-              Search
-            </button>
+              Explore Map
+            </Link>
           </div>
         </div>
 
