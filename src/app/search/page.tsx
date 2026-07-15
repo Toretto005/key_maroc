@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
+import { createClient } from '@/lib/supabase/client';
 
 // Dynamically import map to avoid SSR issues with Leaflet
 const SearchMap = dynamic(() => import('@/components/SearchMap'), { ssr: false });
@@ -30,6 +31,15 @@ export default function SearchResults() {
   const [loading, setLoading] = useState(true);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [locating, setLocating] = useState(false);
+  const [userRole, setUserRole] = useState<string | null>(null);
+
+  const supabase = createClient();
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUserRole(user?.user_metadata?.role || null);
+    });
+  }, [supabase.auth]);
 
   const handleLocateMe = () => {
     setLocating(true);
@@ -128,10 +138,12 @@ export default function SearchResults() {
               </div>
             ) : providers.length === 0 ? (
               <div className="text-center p-8 text-slate-500">
-                <p>No key makers found nearby. Be the first!</p>
-                <Link href="/provider/new" className="inline-block mt-4 text-blue-600 font-medium hover:underline">
-                  Add a Key Maker
-                </Link>
+                <p>No key makers found nearby.</p>
+                {userRole === 'maker' && (
+                  <Link href="/provider/new" className="inline-block mt-4 text-blue-600 font-medium hover:underline">
+                    Add a Key Maker
+                  </Link>
+                )}
               </div>
             ) : providers.map((provider) => (
               <div
