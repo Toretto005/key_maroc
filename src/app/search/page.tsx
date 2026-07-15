@@ -199,6 +199,7 @@ export default function SearchResults() {
               userLng={userLng}
               providers={providers}
               selectedId={selectedId}
+              onLocateMe={() => setSelectedId(null)}
             />
           ) : (
             <SearchMap
@@ -208,6 +209,7 @@ export default function SearchResults() {
               selectedId={selectedId}
               defaultZoom={5}
               showUserMarker={false}
+              onLocateMe={() => setSelectedId(null)}
             />
           )}
         </div>

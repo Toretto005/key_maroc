@@ -67,11 +67,13 @@ type Props = {
   selectedId?: number | null;
   defaultZoom?: number;
   showUserMarker?: boolean;
+  onLocateMe?: () => void;
 };
 
-export default function SearchMap({ userLat, userLng, providers, selectedId, defaultZoom = 16, showUserMarker = true }: Props) {
+export default function SearchMap({ userLat, userLng, providers, selectedId, defaultZoom = 16, showUserMarker = true, onLocateMe }: Props) {
   const router = useRouter();
   const [locating, setLocating] = useState(false);
+  const [map, setMap] = useState<L.Map | null>(null);
 
   const handleLocateMe = () => {
     setLocating(true);
@@ -79,7 +81,11 @@ export default function SearchMap({ userLat, userLng, providers, selectedId, def
       navigator.geolocation.getCurrentPosition(
         (position) => {
           setLocating(false);
-          router.push(`/search?lat=${position.coords.latitude}&lng=${position.coords.longitude}`);
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          router.push(`/search?lat=${lat}&lng=${lng}`);
+          if (map) map.flyTo([lat, lng], 16);
+          if (onLocateMe) onLocateMe();
         },
         async (error) => {
           console.warn("GPS failed, falling back to IP location:", error);
@@ -87,7 +93,11 @@ export default function SearchMap({ userLat, userLng, providers, selectedId, def
             const res = await fetch("https://get.geojs.io/v1/ip/geo.json");
             const data = await res.json();
             if (data.latitude && data.longitude) {
-              router.push(`/search?lat=${data.latitude}&lng=${data.longitude}`);
+              const lat = data.latitude;
+              const lng = data.longitude;
+              router.push(`/search?lat=${lat}&lng=${lng}`);
+              if (map) map.flyTo([lat, lng], 16);
+              if (onLocateMe) onLocateMe();
             } else {
               throw new Error("Invalid IP location data");
             }
@@ -113,6 +123,7 @@ export default function SearchMap({ userLat, userLng, providers, selectedId, def
   return (
     <div className="relative w-full h-full">
       <MapContainer
+      ref={setMap}
       center={[userLat, userLng]}
       zoom={defaultZoom}
       style={{ height: "100%", width: "100%" }}
