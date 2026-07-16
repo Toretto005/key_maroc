@@ -65,8 +65,8 @@ export default function SignUpPage() {
                 type="button"
                 onClick={() => setRole('client')}
                 className={`flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all ${role === 'client'
-                    ? 'border-blue-400 bg-blue-500/20 text-white'
-                    : 'border-white/20 text-slate-300 hover:border-white/40 hover:bg-white/5'
+                  ? 'border-blue-400 bg-blue-500/20 text-white'
+                  : 'border-white/20 text-slate-300 hover:border-white/40 hover:bg-white/5'
                   }`}
               >
                 <User className={`w-7 h-7 ${role === 'client' ? 'text-blue-400' : ''}`} />
@@ -78,8 +78,8 @@ export default function SignUpPage() {
                 type="button"
                 onClick={() => setRole('maker')}
                 className={`flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all ${role === 'maker'
-                    ? 'border-amber-400 bg-amber-500/20 text-white'
-                    : 'border-white/20 text-slate-300 hover:border-white/40 hover:bg-white/5'
+                  ? 'border-amber-400 bg-amber-500/20 text-white'
+                  : 'border-white/20 text-slate-300 hover:border-white/40 hover:bg-white/5'
                   }`}
               >
                 <Wrench className={`w-7 h-7 ${role === 'maker' ? 'text-amber-400' : ''}`} />
@@ -109,7 +109,7 @@ export default function SignUpPage() {
                 type="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
-                placeholder="moulsarout@example.com"
+                placeholder="moulsaroutttt@example.com"
                 className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               />
             </div>
