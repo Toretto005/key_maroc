@@ -7,6 +7,24 @@ import { KeyRound, LogOut, User, Wrench, LogIn, Home, Search, Info, Mail, Layout
 import { useEffect, useState } from 'react';
 import type { User as SupabaseUser } from '@supabase/supabase-js';
 
+const NavLink = ({ href, icon: Icon, label }: { href: string, icon: React.ElementType, label: string }) => {
+  const pathname = usePathname();
+  const isActive = pathname === href || (href !== '/' && pathname.startsWith(href));
+  return (
+    <Link 
+      href={href} 
+      className={`flex flex-col md:flex-row items-center gap-1 md:gap-3 px-3 py-2 md:py-3 rounded-xl transition-colors ${
+        isActive 
+          ? 'text-blue-600 md:bg-blue-50 font-bold' 
+          : 'text-slate-500 hover:text-slate-900 md:hover:bg-slate-100 font-medium'
+      }`}
+    >
+      <Icon className={`w-6 h-6 md:w-5 md:h-5 ${isActive ? 'text-blue-600' : ''}`} />
+      <span className="text-[10px] md:text-sm">{label}</span>
+    </Link>
+  );
+};
+
 export default function Sidebar() {
   const supabase = createClient();
   const router = useRouter();
@@ -36,22 +54,7 @@ export default function Sidebar() {
   const role = user?.user_metadata?.role;
   const name = user?.user_metadata?.full_name;
 
-  const NavLink = ({ href, icon: Icon, label }: { href: string, icon: any, label: string }) => {
-    const isActive = pathname === href || (href !== '/' && pathname.startsWith(href));
-    return (
-      <Link 
-        href={href} 
-        className={`flex flex-col md:flex-row items-center gap-1 md:gap-3 px-3 py-2 md:py-3 rounded-xl transition-colors ${
-          isActive 
-            ? 'text-blue-600 md:bg-blue-50 font-bold' 
-            : 'text-slate-500 hover:text-slate-900 md:hover:bg-slate-100 font-medium'
-        }`}
-      >
-        <Icon className={`w-6 h-6 md:w-5 md:h-5 ${isActive ? 'text-blue-600' : ''}`} />
-        <span className="text-[10px] md:text-sm">{label}</span>
-      </Link>
-    );
-  };
+
 
   return (
     <>
