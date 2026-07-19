@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
+import { createClient } from '@/lib/supabase/server';
 import { prisma } from '@/lib/prisma';
 
 export async function GET(request: Request) {
@@ -11,22 +10,10 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Missing phone parameter" }, { status: 400 });
   }
 
-  const cookieStore = await cookies();
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value;
-        },
-      },
-    }
-  );
-
+  const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  if (!user || user.user_metadata?.role !== 'provider') {
+  if (!user || user.user_metadata?.role !== 'maker') {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -52,22 +39,10 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const cookieStore = await cookies();
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value;
-        },
-      },
-    }
-  );
-
+  const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  if (!user || user.user_metadata?.role !== 'provider') {
+  if (!user || user.user_metadata?.role !== 'maker') {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

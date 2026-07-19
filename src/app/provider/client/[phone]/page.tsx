@@ -30,6 +30,7 @@ export default function ClientProfilePage() {
   const [loading, setLoading] = useState(true);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [reviewsLoading, setReviewsLoading] = useState(true);
+  const [clientData, setClientData] = useState<any>(null);
   
   const [newRating, setNewRating] = useState(5);
   const [newComment, setNewComment] = useState('');
@@ -51,7 +52,20 @@ export default function ClientProfilePage() {
     });
 
     fetchReviews();
+    fetchClientProfile();
   }, [phone, router]);
+
+  const fetchClientProfile = async () => {
+    try {
+      const res = await fetch(`/api/provider/client-profile?phone=${encodeURIComponent(phone)}`);
+      if (res.ok) {
+        const data = await res.json();
+        setClientData(data.client);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   const fetchReviews = async () => {
     setReviewsLoading(true);
@@ -110,6 +124,8 @@ export default function ClientProfilePage() {
     );
   }
 
+  const displayClientName = clientData?.name || clientName;
+
   return (
     <div className="min-h-screen bg-slate-50 w-full font-sans">
       <header className="h-14 bg-white border-b border-slate-200 px-4 md:px-6 flex items-center sticky top-0 z-30 shadow-sm">
@@ -133,9 +149,13 @@ export default function ClientProfilePage() {
             {/* Client Info Card */}
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 text-center">
               <div className="w-20 h-20 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-white shadow-sm overflow-hidden">
-                <span className="text-3xl font-bold">{clientName.charAt(0)}</span>
+                {clientData?.avatarUrl ? (
+                  <img src={clientData.avatarUrl} alt={displayClientName} className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-3xl font-bold">{displayClientName.charAt(0)}</span>
+                )}
               </div>
-              <h2 className="text-xl font-bold text-slate-900">{clientName}</h2>
+              <h2 className="text-xl font-bold text-slate-900">{displayClientName}</h2>
               <div className="flex items-center justify-center gap-1.5 text-slate-500 mt-2 text-sm">
                 <Phone className="w-4 h-4" />
                 {phone}

@@ -314,14 +314,33 @@ export default function EditProvider() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wide">Skills (Optional)</label>
-              <input
-                type="text"
-                value={formData.skills}
-                onChange={e => setFormData({ ...formData, skills: e.target.value })}
-                className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all bg-slate-50 focus:bg-white text-sm"
-                placeholder="e.g. Lock installation, Rekeying, Master Key Systems"
-              />
+              <label className="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wide">Service Types (Skills) *</label>
+              <div className="flex flex-wrap gap-3">
+                {['Emergency', 'Commercial', 'Auto', 'Residential'].map(type => {
+                  const currentSkills = formData.skills ? formData.skills.split(',').map(s => s.trim()).filter(Boolean) : [];
+                  const isSelected = currentSkills.includes(type);
+                  return (
+                    <button
+                      key={type}
+                      type="button"
+                      onClick={() => {
+                        if (isSelected) {
+                          setFormData({ ...formData, skills: currentSkills.filter(s => s !== type).join(',') });
+                        } else {
+                          setFormData({ ...formData, skills: [...currentSkills, type].join(',') });
+                        }
+                      }}
+                      className={`px-4 py-2 rounded-xl border text-sm font-bold transition-all ${
+                        isSelected
+                          ? 'bg-blue-50 border-blue-600 text-blue-700 shadow-sm'
+                          : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
+                      }`}
+                    >
+                      {type}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

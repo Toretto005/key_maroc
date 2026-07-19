@@ -17,6 +17,7 @@ export default function CreateProvider() {
     address: '',
     phone: '',
     about: '',
+    skills: '',
     lat: '',
     lng: ''
   });
@@ -142,6 +143,36 @@ export default function CreateProvider() {
               className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all resize-none"
               placeholder="Describe your experience, specializations, and availability..."
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">Service Types (Skills) *</label>
+            <div className="flex flex-wrap gap-3">
+              {['Emergency', 'Commercial', 'Auto', 'Residential'].map(type => {
+                const currentSkills = formData.skills ? formData.skills.split(',').map(s => s.trim()).filter(Boolean) : [];
+                const isSelected = currentSkills.includes(type);
+                return (
+                  <button
+                    key={type}
+                    type="button"
+                    onClick={() => {
+                      if (isSelected) {
+                        setFormData({ ...formData, skills: currentSkills.filter(s => s !== type).join(',') });
+                      } else {
+                        setFormData({ ...formData, skills: [...currentSkills, type].join(',') });
+                      }
+                    }}
+                    className={`px-4 py-2 rounded-xl border text-sm font-bold transition-all ${
+                      isSelected
+                        ? 'bg-blue-50 border-blue-600 text-blue-700 shadow-sm'
+                        : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
+                    }`}
+                  >
+                    {type}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
 

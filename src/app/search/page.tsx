@@ -42,6 +42,7 @@ function SearchResultsContent() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [pendingProviderId, setPendingProviderId] = useState<number | null>(null);
+  const [selectedServiceType, setSelectedServiceType] = useState<string>('All');
 
   const supabase = createClient();
 
@@ -134,6 +135,18 @@ function SearchResultsContent() {
     }
   }, [lat, lng]);
 
+  const filteredProviders = providers.filter(provider => {
+    // Check search query
+    const matchesQuery = provider.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                         (provider.about && provider.about.toLowerCase().includes(searchQuery.toLowerCase()));
+    
+    // Check service type
+    const providerSkills = provider.skills ? provider.skills.split(',').map(s => s.trim()) : [];
+    const matchesService = selectedServiceType === 'All' || providerSkills.includes(selectedServiceType);
+    
+    return matchesQuery && matchesService;
+  });
+
   const userLat = lat ? parseFloat(lat) : 0;
   const userLng = lng ? parseFloat(lng) : 0;
 
@@ -174,16 +187,16 @@ function SearchResultsContent() {
                   {locating ? "Locating..." : "Use My Location"}
                 </button>
               </div>
-            ) : providers.length === 0 ? (
+            ) : filteredProviders.length === 0 ? (
               <div className="text-center p-8 text-slate-500 bg-white rounded-2xl border border-slate-200">
-                <p>No key makers found nearby.</p>
+                <p>No key makers found for the selected criteria.</p>
                 {userRole === 'maker' && (
                   <Link href="/provider/new" className="inline-block mt-4 text-blue-600 font-medium hover:underline">
                     Add a Key Maker
                   </Link>
                 )}
               </div>
-            ) : providers.map((provider) => (
+            ) : filteredProviders.map((provider) => (
               <div
                 key={provider.id}
                 onClick={() => setSelectedId(provider.id)}
@@ -256,28 +269,48 @@ function SearchResultsContent() {
           </div>
 
           {/* Bottom Service Types Tabs */}
-          <div className="fixed md:absolute bottom-0 left-0 w-full bg-slate-50 border-t border-slate-200 p-4 z-[60] shadow-[0_-4px_15px_rgba(0,0,0,0.05)] md:shadow-none">
+          <div className="fixed md:absolute bottom-0 left-0 w-full bg-slate-50 border-t border-slate-200 p-4 z-[60] shadow-[0_-4px_15px_rgba(0,0,0,0.05)] md:shadow-none overflow-x-auto hide-scrollbar">
             <h4 className="text-xs font-bold text-slate-800 mb-3">Service Types</h4>
-            <div className="flex items-center justify-between gap-2">
-              <button className="flex flex-col items-center gap-1.5 flex-1 p-2 bg-white border-2 border-[#1b344a] rounded-xl text-[#1b344a] shadow-sm">
+            <div className="flex items-center gap-2 min-w-max">
+              <button 
+                onClick={() => setSelectedServiceType('All')}
+                className={`flex flex-col items-center gap-1.5 px-4 py-2 rounded-xl transition-colors ${selectedServiceType === 'All' ? 'bg-[#1b344a] text-white border-2 border-[#1b344a]' : 'bg-white text-slate-500 border border-slate-200 hover:border-slate-300'}`}
+              >
+                <span className="text-xs font-bold">All</span>
+              </button>
+              <button 
+                onClick={() => setSelectedServiceType('Emergency')}
+                className={`flex flex-col items-center gap-1.5 flex-1 min-w-[80px] p-2 rounded-xl transition-colors ${selectedServiceType === 'Emergency' ? 'bg-[#1b344a] text-white border-2 border-[#1b344a]' : 'bg-white text-slate-500 border border-slate-200 hover:border-slate-300'}`}
+              >
                 <div className="relative">
-                  <Bell className="w-5 h-5 fill-red-500 text-red-500" />
-                  <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
-                  </span>
+                  <Bell className={`w-5 h-5 ${selectedServiceType === 'Emergency' ? 'text-white' : 'fill-red-500 text-red-500'}`} />
+                  {selectedServiceType !== 'Emergency' && (
+                    <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+                    </span>
+                  )}
                 </div>
                 <span className="text-xs font-bold">Emergency</span>
               </button>
-              <button className="flex flex-col items-center gap-1.5 flex-1 p-2 bg-white border border-slate-200 rounded-xl text-slate-500 hover:border-slate-300 transition-colors">
+              <button 
+                onClick={() => setSelectedServiceType('Commercial')}
+                className={`flex flex-col items-center gap-1.5 flex-1 min-w-[80px] p-2 rounded-xl transition-colors ${selectedServiceType === 'Commercial' ? 'bg-[#1b344a] text-white border-2 border-[#1b344a]' : 'bg-white text-slate-500 border border-slate-200 hover:border-slate-300'}`}
+              >
                 <Building2 className="w-5 h-5" />
                 <span className="text-xs font-medium">Commercial</span>
               </button>
-              <button className="flex flex-col items-center gap-1.5 flex-1 p-2 bg-white border border-slate-200 rounded-xl text-slate-500 hover:border-slate-300 transition-colors">
+              <button 
+                onClick={() => setSelectedServiceType('Auto')}
+                className={`flex flex-col items-center gap-1.5 flex-1 min-w-[80px] p-2 rounded-xl transition-colors ${selectedServiceType === 'Auto' ? 'bg-[#1b344a] text-white border-2 border-[#1b344a]' : 'bg-white text-slate-500 border border-slate-200 hover:border-slate-300'}`}
+              >
                 <Car className="w-5 h-5" />
                 <span className="text-xs font-medium">Auto</span>
               </button>
-              <button className="flex flex-col items-center gap-1.5 flex-1 p-2 bg-white border border-slate-200 rounded-xl text-slate-500 hover:border-slate-300 transition-colors">
+              <button 
+                onClick={() => setSelectedServiceType('Residential')}
+                className={`flex flex-col items-center gap-1.5 flex-1 min-w-[80px] p-2 rounded-xl transition-colors ${selectedServiceType === 'Residential' ? 'bg-[#1b344a] text-white border-2 border-[#1b344a]' : 'bg-white text-slate-500 border border-slate-200 hover:border-slate-300'}`}
+              >
                 <Home className="w-5 h-5" />
                 <span className="text-xs font-medium">Residential</span>
               </button>
@@ -291,7 +324,7 @@ function SearchResultsContent() {
             <SearchMap
               userLat={userLat}
               userLng={userLng}
-              providers={providers}
+              providers={filteredProviders}
               selectedId={selectedId}
               onLocateMe={() => setSelectedId(null)}
             />
@@ -299,7 +332,7 @@ function SearchResultsContent() {
             <SearchMap
               userLat={31.7917}
               userLng={-7.0926}
-              providers={providers}
+              providers={filteredProviders}
               selectedId={selectedId}
               defaultZoom={5}
               showUserMarker={false}

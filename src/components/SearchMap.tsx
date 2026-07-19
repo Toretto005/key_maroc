@@ -58,6 +58,7 @@ type Provider = {
   distanceStr: string;
   lat: number;
   lng: number;
+  avatarUrl?: string | null;
 };
 
 type Props = {
@@ -70,21 +71,31 @@ type Props = {
   onLocateMe?: () => void;
 };
 
-export default function SearchMap({ userLat, userLng, providers, selectedId, defaultZoom = 16, showUserMarker = true, onLocateMe }: Props) {
+export default function SearchMap({
+  userLat,
+  userLng,
+  providers,
+  selectedId,
+  defaultZoom = 16,
+  showUserMarker = true,
+  onLocateMe
+}: Props) {
   const router = useRouter();
-  const [locating, setLocating] = useState(false);
   const [map, setMap] = useState<L.Map | null>(null);
+  const [locating, setLocating] = useState(false);
 
   const handleLocateMe = () => {
+    if (!map) return;
     setLocating(true);
+
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          setLocating(false);
           const lat = position.coords.latitude;
           const lng = position.coords.longitude;
           router.push(`/search?lat=${lat}&lng=${lng}`);
-          if (map) map.flyTo([lat, lng], 16);
+          map.flyTo([lat, lng], 16, { animate: true, duration: 1.5 });
+          setLocating(false);
           if (onLocateMe) onLocateMe();
         },
         async (error) => {
@@ -96,7 +107,7 @@ export default function SearchMap({ userLat, userLng, providers, selectedId, def
               const lat = data.latitude;
               const lng = data.longitude;
               router.push(`/search?lat=${lat}&lng=${lng}`);
-              if (map) map.flyTo([lat, lng], 16);
+              map.flyTo([lat, lng], 16);
               if (onLocateMe) onLocateMe();
             } else {
               throw new Error("Invalid IP location data");
@@ -145,7 +156,7 @@ export default function SearchMap({ userLat, userLng, providers, selectedId, def
       {showUserMarker && (
         <Marker position={[userLat, userLng]} icon={userIcon}>
           <Popup>
-            <div className="font-semibold text-blue-600">📍 Your Location</div>
+            <div className="font-semibold text-blue-600">Your Location</div>
           </Popup>
         </Marker>
       )}
@@ -156,19 +167,16 @@ export default function SearchMap({ userLat, userLng, providers, selectedId, def
         const customTooltipIcon = new L.DivIcon({
           className: 'custom-tooltip-marker',
           html: `
-            <div class="flex items-center gap-2 bg-white rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.15)] p-2 pr-3 border border-slate-100 whitespace-nowrap transform -translate-x-1/2 -translate-y-full">
-              <div class="w-8 h-8 bg-slate-100 rounded-full border border-slate-200 overflow-hidden flex items-center justify-center shrink-0">
-                <span class="font-bold text-slate-500 text-xs">${provider.name.charAt(0)}</span>
+            <div class="flex flex-col items-center transform -translate-x-1/2 -translate-y-full drop-shadow-md">
+              <span class="text-[11px] font-bold text-slate-800 bg-white/90 backdrop-blur-sm px-2 py-0.5 rounded-md shadow-sm whitespace-nowrap border border-white/50 mb-1 pb-0.5">${provider.name}</span>
+              <div class="relative flex items-center justify-center w-10 h-10 bg-[#1b344a]" style="border-radius: 50% 50% 50% 0; transform: rotate(-45deg);">
+                <div class="w-8 h-8 bg-white rounded-full overflow-hidden flex items-center justify-center border border-slate-200" style="transform: rotate(45deg);">
+                  ${provider.avatarUrl 
+                    ? `<img src="${provider.avatarUrl}" alt="${provider.name}" class="w-full h-full object-cover" />`
+                    : `<span class="font-bold text-slate-500 text-sm">${provider.name.charAt(0)}</span>`
+                  }
+                </div>
               </div>
-              <div class="flex flex-col">
-                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider leading-none mb-0.5">Closest Technician:</span>
-                <span class="text-xs font-bold text-slate-800 leading-none mb-0.5">${provider.name}</span>
-                <span class="text-[10px] text-slate-500 font-medium leading-none">${provider.distanceStr} • 5-min ETA</span>
-              </div>
-              <div class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-r-[6px] border-t-[8px] border-transparent border-t-white drop-shadow-sm"></div>
-            </div>
-            <div class="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-[#1b344a] flex items-center justify-center shadow-md border-2 border-white mt-1">
-               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
             </div>
           `,
           iconSize: [0, 0],
@@ -181,6 +189,37 @@ export default function SearchMap({ userLat, userLng, providers, selectedId, def
             position={[provider.lat, provider.lng]} 
             icon={customTooltipIcon}
           >
+            <Popup className="provider-popup rounded-2xl">
+              <div className="flex flex-col gap-3 min-w-[200px] p-1">
+                <div className="flex items-start gap-3">
+                  <div className="w-12 h-12 rounded-full overflow-hidden bg-slate-100 flex items-center justify-center border border-slate-200 shrink-0">
+                    {provider.avatarUrl 
+                      ? <img src={provider.avatarUrl} alt={provider.name} className="w-full h-full object-cover" />
+                      : <span className="font-bold text-slate-500 text-lg">{provider.name.charAt(0)}</span>
+                    }
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-bold text-slate-900 leading-tight mb-1 text-sm">{provider.name}</h3>
+                    <div className="text-xs text-slate-500 flex items-center gap-1 mb-1">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                      <span className="truncate max-w-[120px] inline-block align-bottom">{provider.address}</span>
+                    </div>
+                    {provider.distanceStr && (
+                      <div className="text-xs font-semibold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded inline-block">
+                        {provider.distanceStr} away
+                      </div>
+                    )}
+                  </div>
+                </div>
+                
+                <a 
+                  href={`/provider/${provider.id}`}
+                  className="w-full block text-center bg-blue-600 hover:bg-blue-700 !text-white text-sm font-bold py-2 px-4 rounded-xl transition-colors shadow-sm mt-1"
+                >
+                  View Profile
+                </a>
+              </div>
+            </Popup>
           </Marker>
         );
       })}

@@ -8,7 +8,7 @@ export async function POST(request: Request) {
     const { data: { user } } = await supabase.auth.getUser();
 
     const body = await request.json();
-    const { name, address, about, phone, lat, lng } = body;
+    const { name, address, about, phone, lat, lng, skills } = body;
 
     const { data: provider, error } = await supabaseAdmin
       .from('Provider')
@@ -19,6 +19,7 @@ export async function POST(request: Request) {
         phone: phone || '',
         lat: parseFloat(lat),
         lng: parseFloat(lng),
+        skills: skills || '',
         rating: 5.0,
         reviews: 0,
         userId: user?.id ?? null,
