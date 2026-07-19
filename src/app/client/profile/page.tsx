@@ -3,18 +3,19 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import { Loader2, CheckCircle2, User, Phone } from 'lucide-react';
+import { Loader2, User, Phone, Settings as SettingsIcon, Mail } from 'lucide-react';
+import Link from 'next/link';
 
 export default function ClientProfile() {
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [success, setSuccess] = useState(false);
   const router = useRouter();
   const supabase = createClient();
 
   const [formData, setFormData] = useState({
     fullName: '',
     phone: '',
+    email: '',
+    avatarUrl: '',
   });
 
   useEffect(() => {
@@ -31,112 +32,79 @@ export default function ClientProfile() {
       setFormData({
         fullName: user.user_metadata?.full_name || '',
         phone: user.user_metadata?.phone || '',
+        email: user.email || '',
+        avatarUrl: user.user_metadata?.avatar_url || '',
       });
       setLoading(false);
     });
   }, [router, supabase]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSaving(true);
-    setSuccess(false);
-
-    try {
-      const { error } = await supabase.auth.updateUser({
-        data: {
-          full_name: formData.fullName,
-          phone: formData.phone,
-        }
-      });
-
-      if (error) throw error;
-      
-      setSuccess(true);
-      // Auto-hide success message
-      setTimeout(() => setSuccess(false), 3000);
-      
-      // Force router refresh so the Navbar/Sidebar updates with the new name
-      router.refresh();
-      
-    } catch (error: any) {
-      console.error(error);
-      alert(error.message || "Failed to update profile.");
-    } finally {
-      setSaving(false);
-    }
-  };
-
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <div className="min-h-[80vh] flex items-center justify-center bg-slate-50">
         <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6">
-      <div className="max-w-xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-slate-900">My Profile</h1>
-          <p className="text-slate-500 text-sm mt-0.5">Manage your personal information.</p>
+    <div className="min-h-[calc(100vh-4rem)] bg-slate-50 w-full font-sans">
+      <main className="p-4 md:p-6 max-w-[1000px] mx-auto min-h-[80vh]">
+        {/* Profile Card */}
+        <div className="w-full bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8 mt-12">
+          <div className="text-center mb-8">
+            <div className="w-24 h-24 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-white shadow-sm overflow-hidden">
+              {formData.avatarUrl ? (
+                <img src={formData.avatarUrl} alt="Profile" className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-4xl font-bold">{formData.fullName.charAt(0) || 'C'}</span>
+              )}
+            </div>
+            <h1 className="text-2xl font-bold text-slate-900">{formData.fullName || 'Client User'}</h1>
+            <p className="text-slate-500 text-sm mt-1">Client Account</p>
+          </div>
+
+          <div className="space-y-4 mb-8">
+            <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-xl border border-slate-100">
+              <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm">
+                <User className="w-5 h-5 text-slate-400" />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-0.5">Full Name</p>
+                <p className="text-sm font-medium text-slate-800">{formData.fullName || 'Not provided'}</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-xl border border-slate-100">
+              <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm">
+                <Phone className="w-5 h-5 text-slate-400" />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-0.5">Phone Number</p>
+                <p className="text-sm font-medium text-slate-800">{formData.phone || 'Not provided'}</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-xl border border-slate-100">
+              <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm">
+                <Mail className="w-5 h-5 text-slate-400" />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-0.5">Email Address</p>
+                <p className="text-sm font-medium text-slate-800">{formData.email || 'Not provided'}</p>
+              </div>
+            </div>
+          </div>
+
+          <Link
+            href="/client/settings"
+            className="w-full flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 py-3 rounded-xl font-bold transition-all shadow-sm"
+          >
+            <SettingsIcon className="w-5 h-5" />
+            Edit Profile
+          </Link>
         </div>
-
-        <form onSubmit={handleSubmit} className="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-200 space-y-6">
-          
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">Full Name</label>
-            <div className="relative">
-              <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-              <input
-                required
-                type="text"
-                value={formData.fullName}
-                onChange={e => setFormData({ ...formData, fullName: e.target.value })}
-                className="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                placeholder="Enter your full name"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">Phone Number (Optional)</label>
-            <div className="relative">
-              <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-              <input
-                type="tel"
-                value={formData.phone}
-                onChange={e => setFormData({ ...formData, phone: e.target.value })}
-                className="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                placeholder="e.g. 06 00 00 00 00"
-              />
-            </div>
-            <p className="text-xs text-slate-500 mt-2">
-              Saving your phone number here means you won't have to type it every time you request a locksmith!
-            </p>
-          </div>
-
-          <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
-            {success ? (
-              <span className="flex items-center gap-1.5 text-green-600 font-medium text-sm animate-in fade-in">
-                <CheckCircle2 className="w-4 h-4" />
-                Profile updated!
-              </span>
-            ) : (
-              <span /> // Empty placeholder for flex spacing
-            )}
-            
-            <button
-              type="submit"
-              disabled={saving}
-              className="flex items-center justify-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all disabled:opacity-50 min-w-[140px]"
-            >
-              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-              {saving ? 'Saving...' : 'Save Changes'}
-            </button>
-          </div>
-        </form>
-      </div>
+      </main>
     </div>
   );
 }

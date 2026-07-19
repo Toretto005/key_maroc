@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Sidebar from "@/components/Sidebar";
+import TopHeader from "@/components/TopHeader";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,8 +31,9 @@ export default function RootLayout({
     >
       <body className="flex flex-col md:flex-row h-screen overflow-hidden bg-slate-50">
         <Sidebar />
-        {/* Main Content Area - Scrollable with padding on mobile to account for bottom bar */}
-        <main className="flex-1 overflow-y-auto pb-16 md:pb-0 flex flex-col">
+        {/* Main Content Area */}
+        <main className="flex-1 overflow-y-auto flex flex-col relative z-0">
+          <TopHeader />
           {children}
         </main>
       </body>

@@ -3,24 +3,30 @@
 import { createClient } from '@/lib/supabase/client';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { KeyRound, LogOut, User, Wrench, LogIn, Home, Search, Info, Mail, LayoutDashboard, Settings } from 'lucide-react';
+import { Wrench, LogOut, User, LogIn, Home, Search, Info, Mail, LayoutDashboard, Settings, Calendar, Users, ClipboardList, Hexagon, Menu, X, MessageSquare } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import type { User as SupabaseUser } from '@supabase/supabase-js';
 
-const NavLink = ({ href, icon: Icon, label }: { href: string, icon: React.ElementType, label: string }) => {
+const NavLink = ({ href, icon: Icon, label, exact = false, onClick }: { href: string, icon: React.ElementType, label: string, exact?: boolean, onClick?: () => void }) => {
   const pathname = usePathname();
-  const isActive = pathname === href || (href !== '/' && pathname.startsWith(href));
+  
+  // Use exact matching if requested (e.g. for /dashboard), otherwise use prefix matching
+  const isActive = exact 
+    ? pathname === href 
+    : (pathname === href || (href !== '/' && pathname.startsWith(href)));
+
   return (
     <Link 
       href={href} 
-      className={`flex flex-col md:flex-row items-center gap-1 md:gap-3 px-3 py-2 md:py-3 rounded-xl transition-colors ${
+      onClick={onClick}
+      className={`flex items-center gap-3 px-4 py-3 rounded-r-full transition-colors mr-4 ${
         isActive 
-          ? 'text-blue-600 md:bg-blue-50 font-bold' 
-          : 'text-slate-500 hover:text-slate-900 md:hover:bg-slate-100 font-medium'
+          ? 'bg-[#1b344a] text-white font-medium shadow-sm' 
+          : 'text-slate-400 hover:text-white hover:bg-[#1b344a]/50 font-medium'
       }`}
     >
-      <Icon className={`w-6 h-6 md:w-5 md:h-5 ${isActive ? 'text-blue-600' : ''}`} />
-      <span className="text-[10px] md:text-sm">{label}</span>
+      <Icon className={`w-5 h-5 ${isActive ? 'text-white' : ''}`} />
+      <span className="text-sm">{label}</span>
     </Link>
   );
 };
@@ -28,9 +34,9 @@ const NavLink = ({ href, icon: Icon, label }: { href: string, icon: React.Elemen
 export default function Sidebar() {
   const supabase = createClient();
   const router = useRouter();
-  const pathname = usePathname();
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -52,119 +58,117 @@ export default function Sidebar() {
   };
 
   const role = user?.user_metadata?.role;
-  const name = user?.user_metadata?.full_name;
 
-
+  const closeMenu = () => setIsOpen(false);
 
   return (
     <>
-      {/* Desktop Sidebar */}
-      <aside className="hidden md:flex flex-col w-64 h-screen bg-white border-r border-slate-200 shadow-sm flex-shrink-0 z-50 sticky top-0">
+      {/* Mobile Top Bar */}
+      <div className="md:hidden flex items-center justify-between p-4 bg-[#112331] text-white shrink-0 z-40 relative">
+        <Link href="/" className="flex items-center gap-2 font-bold text-white text-lg">
+          <div className="relative flex items-center justify-center">
+            <Hexagon className="w-6 h-6 text-blue-400 fill-blue-400/20" />
+            <Wrench className="w-3 h-3 text-blue-400 absolute" />
+          </div>
+          Sarouti
+        </Link>
+        <button onClick={() => setIsOpen(true)} className="p-1 hover:bg-slate-800 rounded-lg transition-colors">
+          <Menu className="w-6 h-6" />
+        </button>
+      </div>
+
+      {/* Mobile Drawer Overlay */}
+      {isOpen && (
+        <div 
+          className="md:hidden fixed inset-0 bg-slate-900/60 z-40 backdrop-blur-sm transition-opacity"
+          onClick={closeMenu}
+        />
+      )}
+
+      {/* Sidebar Container (Desktop & Mobile Drawer) */}
+      <aside className={`fixed md:sticky top-0 left-0 z-50 h-screen w-64 bg-[#112331] shadow-2xl md:shadow-xl text-slate-300 flex flex-col flex-shrink-0 transition-transform duration-300 ease-in-out md:translate-x-0 ${
+        isOpen ? 'translate-x-0' : '-translate-x-full'
+      }`}>
         
-        {/* Logo */}
-        <div className="p-6">
-          <Link href="/" className="flex items-center gap-2 font-bold text-slate-900 text-xl">
-            <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-sm">
-              <KeyRound className="w-5 h-5 text-white" />
+        {/* Logo & Mobile Close Button */}
+        <div className="p-6 flex items-center justify-between">
+          <Link href="/" onClick={closeMenu} className="flex items-center gap-2 font-bold text-white text-xl">
+            <div className="relative flex items-center justify-center">
+              <Hexagon className="w-8 h-8 text-blue-400 fill-blue-400/20" />
+              <Wrench className="w-4 h-4 text-blue-400 absolute" />
             </div>
             Sarouti
           </Link>
+          <button onClick={closeMenu} className="md:hidden p-1 text-slate-400 hover:text-white rounded-lg">
+             <X className="w-5 h-5" />
+          </button>
         </div>
 
         {/* Main Navigation */}
-        <nav className="flex-1 px-4 space-y-1.5 overflow-y-auto">
-          <NavLink href="/" icon={Home} label="Home" />
-          <NavLink href="/search" icon={Search} label="Find Locksmith" />
-          <NavLink href="/about" icon={Info} label="About Us" />
-          <NavLink href="/contact" icon={Mail} label="Contact" />
+        <nav className="flex-1 space-y-1 overflow-y-auto mt-2">
           
-          {user && role === 'maker' && (
-            <div className="pt-4 mt-4 border-t border-slate-100">
-              <p className="px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Provider</p>
-              <NavLink href="/dashboard" icon={LayoutDashboard} label="Dashboard" />
-              <NavLink href="/provider/edit" icon={Settings} label="My Profile" />
-            </div>
-          )}
-
-          {user && role === 'client' && (
-            <div className="pt-4 mt-4 border-t border-slate-100">
-              <p className="px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Account</p>
-              <NavLink href="/client/profile" icon={Settings} label="My Profile" />
-            </div>
+          {user && role === 'maker' ? (
+            <>
+              <NavLink href="/dashboard" icon={LayoutDashboard} label="Dashboard" exact={true} onClick={closeMenu} />
+              <NavLink href="/dashboard/orders" icon={ClipboardList} label="Orders" onClick={closeMenu} />
+              <NavLink href="/provider/services" icon={Wrench} label="Services" onClick={closeMenu} />
+              <NavLink href="/dashboard/calendar" icon={Calendar} label="Calendar" onClick={closeMenu} />
+              <NavLink href="/dashboard/clients" icon={Users} label="Clients" onClick={closeMenu} />
+              <NavLink href="/provider/edit" icon={Settings} label="Settings" onClick={closeMenu} />
+              <NavLink href="/dashboard/profile" icon={User} label="Profile" onClick={closeMenu} />
+            </>
+          ) : user && role === 'client' ? (
+            <>
+              <NavLink href="/client/dashboard" icon={LayoutDashboard} label="Dashboard" onClick={closeMenu} />
+              <NavLink href="/search" icon={Search} label="Find Locksmith" onClick={closeMenu} />
+              <NavLink href="/client/orders" icon={Calendar} label="My Bookings" onClick={closeMenu} />
+              <NavLink href="/client/messages" icon={MessageSquare} label="Messages" onClick={closeMenu} />
+              <NavLink href="/client/profile" icon={User} label="Profile" exact={true} onClick={closeMenu} />
+              <NavLink href="/client/settings" icon={Settings} label="Settings" onClick={closeMenu} />
+            </>
+          ) : (
+            <>
+              <NavLink href="/" icon={Home} label="Home" onClick={closeMenu} />
+              <NavLink href="/search" icon={Search} label="Find Locksmith" onClick={closeMenu} />
+              <NavLink href="/about" icon={Info} label="About Us" onClick={closeMenu} />
+              <NavLink href="/contact" icon={Mail} label="Contact" onClick={closeMenu} />
+            </>
           )}
         </nav>
 
-        {/* User / Auth Bottom Section */}
-        <div className="p-4 border-t border-slate-200 bg-slate-50">
-          {loading ? (
-            <div className="w-full h-10 rounded-xl bg-slate-200 animate-pulse" />
-          ) : user ? (
-            <div className="flex flex-col gap-3">
-              <div className="flex items-center gap-3 px-2">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-white shadow-sm ${role === 'maker' ? 'bg-amber-500' : 'bg-blue-600'}`}>
-                  {name ? name.charAt(0).toUpperCase() : <User className="w-5 h-5" />}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold text-slate-900 truncate">{name || user.email}</p>
-                  <p className="text-xs text-slate-500 flex items-center gap-1">
-                    {role === 'maker' ? <Wrench className="w-3 h-3" /> : <User className="w-3 h-3" />}
-                    {role === 'maker' ? 'Key Maker' : 'Client'}
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={handleLogout}
-                className="flex items-center justify-center gap-2 w-full px-4 py-2 text-slate-600 hover:bg-slate-200 hover:text-slate-900 rounded-xl text-sm font-bold transition-colors"
+        {/* Bottom Profile / Auth Actions */}
+        <div className="p-4 border-t border-slate-800">
+          {!loading && (
+            user ? (
+              <button 
+                onClick={() => { handleLogout(); closeMenu(); }}
+                className="flex items-center gap-3 px-4 py-3 w-full rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors font-medium text-sm"
               >
-                <LogOut className="w-4 h-4" />
-                Sign out
+                <LogOut className="w-5 h-5" />
+                <span>Logout</span>
               </button>
-            </div>
-          ) : (
-            <div className="flex flex-col gap-2">
-              <Link
-                href="/auth/login"
-                className="flex items-center justify-center gap-2 w-full px-4 py-2.5 text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 rounded-xl text-sm font-bold transition-colors shadow-sm"
-              >
-                <LogIn className="w-4 h-4" />
-                Sign in
-              </Link>
-              <Link
-                href="/auth/signup"
-                className="flex items-center justify-center w-full px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold transition-colors shadow-sm"
-              >
-                Get Started
-              </Link>
-            </div>
+            ) : (
+              <div className="space-y-2">
+                <Link 
+                  href="/auth/login"
+                  onClick={closeMenu}
+                  className="flex items-center justify-center gap-2 w-full px-4 py-2 text-sm font-medium text-white bg-slate-800 hover:bg-slate-700 rounded-xl transition-colors"
+                >
+                  <LogIn className="w-4 h-4" />
+                  Sign In
+                </Link>
+                <Link 
+                  href="/auth/signup"
+                  onClick={closeMenu}
+                  className="flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition-colors shadow-sm"
+                >
+                  Join as Provider
+                </Link>
+              </div>
+            )
           )}
         </div>
       </aside>
-
-      {/* Mobile Bottom Navigation Bar */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-white border-t border-slate-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-50 flex items-center justify-around px-2">
-        <NavLink href="/" icon={Home} label="Home" />
-        <NavLink href="/search" icon={Search} label="Search" />
-        
-        {user && role === 'maker' && (
-          <>
-            <NavLink href="/dashboard" icon={LayoutDashboard} label="Panel" />
-            <NavLink href="/provider/edit" icon={Settings} label="Profile" />
-          </>
-        )}
-
-        {user && role === 'client' && (
-          <NavLink href="/client/profile" icon={Settings} label="Profile" />
-        )}
-        
-        {user ? (
-          <button onClick={handleLogout} className="flex flex-col items-center gap-1 px-3 py-2 text-slate-500 hover:text-slate-900">
-            <LogOut className="w-6 h-6" />
-            <span className="text-[10px]">Sign out</span>
-          </button>
-        ) : (
-          <NavLink href="/auth/login" icon={LogIn} label="Sign in" />
-        )}
-      </nav>
     </>
   );
 }

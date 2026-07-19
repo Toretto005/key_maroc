@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabase/admin';
+import { prisma } from '@/lib/prisma';
 import { createClient } from '@/lib/supabase/server';
 
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -15,34 +15,35 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     const providerId = parseInt(id);
 
     // Verify ownership
-    const { data: existing } = await supabaseAdmin
-      .from('Provider')
-      .select('userId')
-      .eq('id', providerId)
-      .single();
+    const existing = await prisma.provider.findUnique({
+      where: { id: providerId },
+      select: { userId: true }
+    });
 
     if (!existing || existing.userId !== user.id) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     const body = await request.json();
-    const { name, address, about, phone, lat, lng } = body;
+    const { name, address, about, phone, lat, lng, skills, certifications, businessHours, email, avatarUrl, bannerUrl } = body;
 
-    const { data: provider, error } = await supabaseAdmin
-      .from('Provider')
-      .update({
+    const provider = await prisma.provider.update({
+      where: { id: providerId },
+      data: {
         name,
         address,
         about,
         phone: phone || '',
         lat: parseFloat(lat),
-        lng: parseFloat(lng)
-      })
-      .eq('id', providerId)
-      .select()
-      .single();
-
-    if (error) throw error;
+        lng: parseFloat(lng),
+        skills,
+        certifications,
+        businessHours,
+        email,
+        avatarUrl,
+        bannerUrl
+      }
+    });
 
     return NextResponse.json({ success: true, provider });
   } catch (error) {

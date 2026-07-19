@@ -1,18 +1,21 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import { Loader2, CheckCircle2, Clock, XCircle, MoreVertical, Smartphone, FileText, Settings, Wrench } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { Loader2, MessageSquare, ChevronDown, Clock, Smartphone, Settings, Star, Mail, MapPin, Award, CheckCircle2, DollarSign, Activity, KeyRound, Lock, User, AlertCircle } from 'lucide-react';
+import NotificationBell from '@/components/NotificationBell';
+import UserDropdown from '@/components/UserDropdown';
 
 type ServiceRequest = {
   id: number;
-  providerId: number;
-  serviceId: number;
   clientName: string;
   clientPhone: string;
-  status: string;
+  locationDetails?: string;
+  latitude: number;
+  longitude: number;
+  status: 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'COMPLETED';
   notes: string;
   createdAt: string;
   Service: {
@@ -22,7 +25,9 @@ type ServiceRequest = {
 
 export default function Dashboard() {
   const [requests, setRequests] = useState<ServiceRequest[]>([]);
+  const [services, setServices] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState<any>(null);
   const router = useRouter();
   const supabase = createClient();
 
@@ -36,14 +41,15 @@ export default function Dashboard() {
         router.push('/');
         return;
       }
-      // Check if user has a provider profile
       fetch('/api/providers/me')
         .then(res => res.json())
         .then(data => {
           if (!data.provider) {
             router.push('/provider/new');
           } else {
+            setProfile(data.provider);
             fetchRequests();
+            fetchServices();
           }
         })
         .catch(err => {
@@ -62,25 +68,20 @@ export default function Dashboard() {
       }
     } catch (e) {
       console.error(e);
-    } finally {
-      setLoading(false);
     }
   };
 
-  const updateStatus = async (id: number, status: string) => {
+  const fetchServices = async () => {
     try {
-      // Optimistic update
-      setRequests(prev => prev.map(r => r.id === id ? { ...r, status } : r));
-      
-      await fetch(`/api/requests/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status })
-      });
+      const res = await fetch('/api/services');
+      if (res.ok) {
+        const data = await res.json();
+        setServices(data.services || []);
+      }
     } catch (e) {
       console.error(e);
-      // Revert on error
-      fetchRequests();
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -92,135 +93,144 @@ export default function Dashboard() {
     );
   }
 
+  const activeOrders = requests.filter(r => r.status === 'PENDING' || r.status === 'ACCEPTED').length;
+  const completedOrders = requests.filter(r => r.status === 'COMPLETED').length;
+
   return (
-    <div className="min-h-screen bg-slate-50 py-10">
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[#f1f5f9] w-full font-sans">
+      
+      {/* Top Header */}
+      <header className="h-16 bg-white border-b border-slate-200 px-4 md:px-6 flex items-center sticky top-0 z-40">
+        <div className="text-slate-800 font-medium text-sm truncate max-w-[150px] sm:max-w-none">
+          {profile?.name || 'Loading...'} <span className="hidden sm:inline text-slate-400">| Locksmith Pro - Dashboard</span>
+        </div>
+      </header>
+
+      {/* Main Content Area */}
+      <main className="p-4 md:p-8 max-w-[1400px] mx-auto">
         
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-slate-900">Maker Dashboard</h1>
-            <p className="text-slate-500 mt-1">Manage your incoming service requests.</p>
-          </div>
-          <div className="flex gap-2">
-            <Link 
-              href="/provider/services"
-              className="flex items-center gap-2 px-4 py-2 bg-blue-50 border border-blue-200 text-blue-700 rounded-xl font-medium hover:bg-blue-100 transition-colors shadow-sm text-sm"
-            >
-              <Wrench className="w-4 h-4" />
-              Manage Services
-            </Link>
-            <Link 
-              href="/provider/edit"
-              className="flex items-center gap-2 px-4 py-2 bg-amber-50 border border-amber-200 text-amber-700 rounded-xl font-medium hover:bg-amber-100 transition-colors shadow-sm text-sm"
-            >
-              <Settings className="w-4 h-4" />
-              Edit Profile
-            </Link>
-            <Link 
-              href="/"
-              className="px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl font-medium hover:bg-slate-50 transition-colors shadow-sm text-sm"
-            >
-              Back to Home
-            </Link>
-          </div>
+        {/* Title above banner */}
+        <div className="mb-4">
+          <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
+          <p className="text-slate-600 text-sm">Manage your orders and services.</p>
         </div>
 
-        {requests.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center shadow-sm">
-            <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <Clock className="w-8 h-8" />
-            </div>
-            <h3 className="text-xl font-bold text-slate-900 mb-2">No Requests Yet</h3>
-            <p className="text-slate-500 max-w-md mx-auto">
-              When clients find your profile and request a service, they will appear here. 
-              Make sure your profile is fully updated!
-            </p>
+        {/* Dashboard Content Container */}
+        <div className="flex flex-col border border-slate-200 rounded-2xl overflow-hidden shadow-sm bg-white">
+          <div className="h-14 border-b border-slate-200 flex items-center px-4 md:px-8 bg-white">
+             <h3 className="text-[15px] font-semibold text-slate-800">Dashboard Overview</h3>
           </div>
-        ) : (
-          <div className="grid gap-4">
-            {requests.map(req => (
-              <div key={req.id} className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
-                
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <span className={`px-2.5 py-1 text-xs font-bold rounded-full ${
-                      req.status === 'PENDING' ? 'bg-amber-100 text-amber-700' :
-                      req.status === 'ACCEPTED' ? 'bg-blue-100 text-blue-700' :
-                      req.status === 'COMPLETED' ? 'bg-green-100 text-green-700' :
-                      'bg-red-100 text-red-700'
-                    }`}>
-                      {req.status}
-                    </span>
-                    <span className="text-slate-400 text-sm">
-                      {new Date(req.createdAt).toLocaleString()}
-                    </span>
-                  </div>
-                  
-                  <h3 className="text-lg font-bold text-slate-900 mb-1">
-                    {req.Service?.name || 'General Service Request'}
-                  </h3>
-                  
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 mt-3">
-                    <div className="flex items-center gap-2 text-slate-600">
-                      <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-700">
-                        {req.clientName.charAt(0).toUpperCase()}
-                      </div>
-                      <span className="font-medium text-slate-900">{req.clientName}</span>
-                    </div>
-                    <a href={`tel:${req.clientPhone}`} className="flex items-center gap-1.5 text-blue-600 hover:underline">
-                      <Smartphone className="w-4 h-4" />
-                      {req.clientPhone}
-                    </a>
-                  </div>
-
-                  {req.notes && (
-                    <div className="mt-4 p-3 bg-slate-50 rounded-xl text-sm text-slate-600 flex gap-2">
-                      <FileText className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
-                      <p>{req.notes}</p>
-                    </div>
-                  )}
-                </div>
-
-                {/* Actions */}
-                <div className="flex items-center gap-2 md:flex-col md:w-32 shrink-0">
-                  {req.status === 'PENDING' && (
-                    <>
-                      <button 
-                        onClick={() => updateStatus(req.id, 'ACCEPTED')}
-                        className="flex-1 md:w-full py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-sm transition-colors shadow-sm"
-                      >
-                        Accept
-                      </button>
-                      <button 
-                        onClick={() => updateStatus(req.id, 'REJECTED')}
-                        className="flex-1 md:w-full py-2 bg-red-50 hover:bg-red-100 text-red-600 font-semibold rounded-xl text-sm transition-colors"
-                      >
-                        Decline
-                      </button>
-                    </>
-                  )}
-                  
-                  {req.status === 'ACCEPTED' && (
-                    <button 
-                      onClick={() => updateStatus(req.id, 'COMPLETED')}
-                      className="flex-1 md:w-full py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl text-sm transition-colors shadow-sm"
-                    >
-                      Mark Complete
-                    </button>
-                  )}
-                  
-                  {(req.status === 'COMPLETED' || req.status === 'REJECTED') && (
-                    <div className="w-full text-center py-2 text-slate-400 text-sm font-medium">
-                      Archived
-                    </div>
-                  )}
-                </div>
-
+          
+          <div className="p-4 md:p-8 bg-[#f3f4f6] flex-1">
+            
+            {/* Quick Stats */}
+            <div className="flex flex-col xl:flex-row xl:items-center justify-end mb-8 gap-4">
+              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 sm:gap-3 text-[13px] bg-white px-4 py-3 rounded-lg border border-slate-200 shadow-sm">
+                <span className="text-slate-600 whitespace-nowrap">Active Orders: <strong className="text-slate-900 font-bold">{activeOrders}</strong></span>
+                <span className="text-slate-300 hidden sm:inline">|</span>
+                <span className="text-slate-600 whitespace-nowrap">Completed: <strong className="text-slate-900 font-bold">{completedOrders}</strong></span>
+                <span className="text-slate-300 hidden sm:inline">|</span>
+                <span className="text-slate-600 whitespace-nowrap">Services: <strong className="text-slate-900 font-bold">{services.length}</strong></span>
+                <span className="text-slate-300 hidden sm:inline">|</span>
+                <span className="text-slate-600 whitespace-nowrap">Revenue: <strong className="text-slate-900 font-bold">MAD 0</strong> <span className="hidden sm:inline">(this week)</span></span>
               </div>
-            ))}
-          </div>
-        )}
+            </div>
 
+            <div className="grid grid-cols-2 gap-4 mb-4">
+               <h4 className="font-bold text-slate-900">Orders</h4>
+               <h4 className="font-bold text-slate-900">Services</h4>
+            </div>
+
+            {/* Current Orders Table */}
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-8">
+              <div className="px-5 py-3 border-b border-slate-100 flex justify-between items-center bg-white">
+                <h4 className="font-bold text-slate-900 text-sm">Current Orders</h4>
+                <span className="text-xs text-slate-500">5 recent</span>
+              </div>
+              
+              <div className="overflow-x-auto">
+                <table className="w-full text-[13px] text-left">
+                  <thead className="text-xs text-slate-900 font-bold bg-slate-50 border-b border-slate-100">
+                    <tr>
+                      <th className="px-5 py-3 font-bold">Order ID</th>
+                      <th className="px-5 py-3 font-bold">Customer</th>
+                      <th className="px-5 py-3 font-bold">Type</th>
+                      <th className="px-5 py-3 font-bold">Status</th>
+                      <th className="px-5 py-3 font-bold">Date</th>
+                      <th className="px-5 py-3 font-bold">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {requests.length > 0 ? (
+                      requests.slice(0, 5).map(req => (
+                        <tr key={req.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
+                          <td className="px-5 py-3 font-medium text-slate-900">LOK-{req.id.toString().padStart(4, '0')}</td>
+                          <td className="px-5 py-3 text-slate-600">{req.clientName}</td>
+                          <td className="px-5 py-3 text-slate-600">{req.Service?.name || 'Service Request'}</td>
+                          <td className="px-5 py-3">
+                            <span className={`px-2.5 py-1 text-[11px] font-bold rounded-full text-white inline-flex items-center
+                              ${req.status === 'PENDING' ? 'bg-[#2a6892]' : 'bg-[#1b85ce]'}
+                            `}>
+                              {req.status === 'PENDING' ? 'Pending' : req.status === 'ACCEPTED' ? 'In Progress' : req.status}
+                            </span>
+                          </td>
+                          <td className="px-5 py-3 text-slate-600">{new Date(req.createdAt).toLocaleDateString()}</td>
+                          <td className="px-5 py-3">
+                            <Link href="#" className="text-slate-900 font-medium hover:underline">View</Link>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={6} className="px-5 py-8 text-center text-slate-500">
+                          No current orders.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Services Managed */}
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <h4 className="font-bold text-slate-900">Services Managed</h4>
+                <Link href="/provider/services" className="text-sm font-bold text-blue-600 hover:underline">View All</Link>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+                {services.length > 0 ? (
+                  services.slice(0,4).map((service, idx) => (
+                    <div key={idx} className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex flex-col hover:border-slate-300 transition-colors">
+                      <div className="w-10 h-10 rounded-lg bg-[#e8f1f8] flex items-center justify-center text-[#2a6892] mb-3">
+                        <KeyRound className="w-5 h-5" />
+                      </div>
+                      <h5 className="font-bold text-slate-900 text-sm leading-tight mb-0.5">{service.name}</h5>
+                      <span className="text-[11px] font-bold text-emerald-600 mb-2">
+                        Active
+                      </span>
+                      <p className="text-[11px] text-slate-500 mt-auto">Base price</p>
+                      <div className="flex items-center justify-between mt-0.5">
+                        <span className="font-bold text-slate-900 text-sm">{service.price}</span>
+                        <div className="flex gap-1">
+                           <Link href="/provider/services" className="px-3 py-1.5 text-xs font-bold text-white bg-[#112331] hover:bg-slate-800 rounded-md transition-colors shadow-sm">
+                             Edit
+                           </Link>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="col-span-full py-8 text-center bg-white border border-slate-200 rounded-xl">
+                    <p className="text-slate-500 text-sm mb-3">You haven't added any services yet.</p>
+                    <Link href="/provider/services" className="text-sm font-bold text-blue-600 hover:underline">Add your first service</Link>
+                  </div>
+                )}
+              </div>
+            </div>
+
+          </div>
+        </div>
       </main>
     </div>
   );

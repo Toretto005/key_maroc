@@ -42,16 +42,32 @@ function FlyTo({ position }: { position: LatLng | null }) {
 }
 
 type Props = {
-  onLocationSelected: (lat: number, lng: number) => void;
+  onLocationSelected: (lat: number, lng: number, address?: string) => void;
 };
 
 export default function LocationPicker({ onLocationSelected }: Props) {
   const [selected, setSelected] = useState<LatLng | null>(null);
   const [locating, setLocating] = useState(false);
 
+  const fetchAndCallAddress = async (lat: number, lng: number) => {
+    onLocationSelected(lat, lng);
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=10`);
+      const data = await res.json();
+      if (data && data.address) {
+        const city = data.address.city || data.address.town || data.address.village || data.address.county || data.address.state;
+        const country = data.address.country;
+        const addressString = city && country ? `${city}, ${country}` : data.display_name;
+        onLocationSelected(lat, lng, addressString);
+      }
+    } catch (e) {
+      console.error("Geocoding failed", e);
+    }
+  };
+
   const handleMapClick = (pos: LatLng) => {
     setSelected(pos);
-    onLocationSelected(pos.lat, pos.lng);
+    fetchAndCallAddress(pos.lat, pos.lng);
   };
 
   const handleLocateMe = () => {
@@ -60,7 +76,7 @@ export default function LocationPicker({ onLocationSelected }: Props) {
       (pos) => {
         const newPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
         setSelected(newPos);
-        onLocationSelected(newPos.lat, newPos.lng);
+        fetchAndCallAddress(newPos.lat, newPos.lng);
         setLocating(false);
       },
       () => {
@@ -123,7 +139,7 @@ export default function LocationPicker({ onLocationSelected }: Props) {
                   const marker = e.target;
                   const pos = marker.getLatLng();
                   setSelected({ lat: pos.lat, lng: pos.lng });
-                  onLocationSelected(pos.lat, pos.lng);
+                  fetchAndCallAddress(pos.lat, pos.lng);
                 },
               }}
             />

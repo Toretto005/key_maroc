@@ -22,7 +22,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     const { id } = await params;
     const serviceId = parseInt(id, 10);
     const body = await req.json();
-    const { name, description, price, duration } = body;
+    const { name, description, price, duration, imageUrl } = body;
 
     // Verify ownership
     const existingService = await prisma.service.findUnique({
@@ -39,7 +39,8 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
         name,
         description,
         price,
-        duration
+        duration,
+        imageUrl
       }
     });
 

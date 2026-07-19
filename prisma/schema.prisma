@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider  = "postgresql"
 }
 
 model Provider {
@@ -16,13 +16,20 @@ model Provider {
   address   String
   phone     String   @default("")
   about     String
-  lat       Float
-  lng       Float
-  rating    Float    @default(5.0)
-  reviews   Int      @default(0)
-  createdAt DateTime @default(now())
-  services  Service[]
-  requests  ServiceRequest[]
+  lat            Float
+  lng            Float
+  rating         Float    @default(5.0)
+  reviews        Int      @default(0)
+  skills         String?
+  certifications String?
+  businessHours  String?
+  email          String?
+  avatarUrl      String?
+  bannerUrl      String?
+  createdAt      DateTime @default(now())
+  services       Service[]
+  requests       ServiceRequest[]
+  clientReviews  ClientReview[]
 }
 
 model Service {
@@ -32,6 +39,7 @@ model Service {
   description String
   price       String
   duration    String
+  imageUrl    String?
   createdAt   DateTime @default(now())
   provider    Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
   requests    ServiceRequest[]
@@ -48,4 +56,14 @@ model ServiceRequest {
   createdAt   DateTime @default(now())
   provider    Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
   service     Service? @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+}
+
+model ClientReview {
+  id          Int      @id @default(autoincrement())
+  providerId  Int
+  clientPhone String
+  rating      Int
+  comment     String?
+  createdAt   DateTime @default(now())
+  provider    Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
 }

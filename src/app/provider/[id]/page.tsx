@@ -4,6 +4,7 @@ import { supabaseAdmin } from '@/lib/supabase/admin';
 import { notFound } from 'next/navigation';
 import ProviderMapWrapper from '@/components/ProviderMapWrapper';
 import ServicesSection from '@/components/ServicesSection';
+import RequestQuoteModal from '@/components/RequestQuoteModal';
 
 export default async function ProviderProfile({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -90,10 +91,8 @@ export default async function ProviderProfile({ params }: { params: Promise<{ id
               <Phone className="w-5 h-5" />
               {provider.phone || 'No number listed'}
             </a>
-            <button className="w-full flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 py-3 rounded-xl font-medium transition-colors">
-              <CalendarDays className="w-5 h-5" />
-              Request a Quote
-            </button>
+            
+            <RequestQuoteModal providerId={provider.id} />
 
             <div className="mt-6 space-y-3 pt-6 border-t border-slate-100">
               <div className="flex items-center gap-3 text-sm text-slate-600">

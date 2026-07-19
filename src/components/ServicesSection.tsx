@@ -12,6 +12,7 @@ type Service = {
   description: string;
   price: string;
   duration: string;
+  imageUrl?: string;
 };
 
 type Props = {
@@ -169,23 +170,29 @@ export default function ServicesSection({ providerId, providerUserId }: Props) {
           {services.map(s => (
             <div key={s.id} className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm relative group">
               {isOwner && (
-                <div className="absolute top-3 right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="absolute top-3 right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
                   <button
                     onClick={() => openEdit(s)}
-                    className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-blue-600 transition-colors"
+                    className="p-1.5 rounded-lg bg-white/80 backdrop-blur shadow-sm hover:bg-white text-slate-600 hover:text-blue-600 transition-colors"
                   >
                     <Pencil className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => handleDelete(s.id)}
                     disabled={deletingId === s.id}
-                    className="p-1.5 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-colors"
+                    className="p-1.5 rounded-lg bg-white/80 backdrop-blur shadow-sm hover:bg-white text-slate-600 hover:text-red-500 transition-colors"
                   >
                     {deletingId === s.id
                       ? <Loader2 className="w-4 h-4 animate-spin" />
                       : <Trash2 className="w-4 h-4" />
                     }
                   </button>
+                </div>
+              )}
+
+              {s.imageUrl && (
+                <div className="w-[calc(100%+2.5rem)] h-32 -mt-5 -ml-5 mb-4 rounded-t-2xl overflow-hidden bg-slate-100 shrink-0">
+                  <img src={s.imageUrl} alt={s.name} className="w-full h-full object-cover" />
                 </div>
               )}
 

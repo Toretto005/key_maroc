@@ -9,6 +9,7 @@ import LocationPickerWrapper from '@/components/LocationPickerWrapper';
 
 export default function CreateProvider() {
   const router = useRouter();
+  const supabase = createClient();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -20,16 +21,23 @@ export default function CreateProvider() {
   });
 
   useEffect(() => {
-    fetch('/api/providers/me')
-      .then(res => res.json())
-      .then(data => {
-        if (data.provider) {
-          // Profile already exists, redirect to dashboard
-          router.push('/dashboard');
-        }
-      })
-      .catch(console.error);
-  }, [router]);
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) {
+        router.push('/auth/login');
+        return;
+      }
+      
+      fetch('/api/providers/me')
+        .then(res => res.json())
+        .then(data => {
+          if (data.provider) {
+            // Profile already exists, redirect to dashboard
+            router.push('/dashboard');
+          }
+        })
+        .catch(console.error);
+    });
+  }, [router, supabase]);
 
   const handleLocationSelected = (lat: number, lng: number) => {
     setFormData(prev => ({

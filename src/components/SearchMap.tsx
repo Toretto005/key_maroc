@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, Tooltip, useMap } from "react-leaflet";
 import { useRouter } from "next/navigation";
 import { Locate, Loader2 } from "lucide-react";
 import L from "leaflet";
@@ -151,23 +151,39 @@ export default function SearchMap({ userLat, userLng, providers, selectedId, def
       )}
 
       {/* Provider markers */}
-      {providers.map((provider) => (
-        <Marker key={provider.id} position={[provider.lat, provider.lng]} icon={providerIcon}>
-          <Popup>
-            <div>
-              <p className="font-bold text-slate-900 mb-1">{provider.name}</p>
-              <p className="text-sm text-slate-600 mb-1">{provider.address}</p>
-              <p className="text-sm font-medium text-blue-600">📍 {provider.distanceStr} away</p>
-              <a
-                href={`/provider/${provider.id}`}
-                className="inline-block mt-2 text-sm bg-blue-600 text-white px-3 py-1 rounded-lg"
-              >
-                View Profile
-              </a>
+      {providers.map((provider) => {
+        // Custom div icon to match the mockup tooltip
+        const customTooltipIcon = new L.DivIcon({
+          className: 'custom-tooltip-marker',
+          html: `
+            <div class="flex items-center gap-2 bg-white rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.15)] p-2 pr-3 border border-slate-100 whitespace-nowrap transform -translate-x-1/2 -translate-y-full">
+              <div class="w-8 h-8 bg-slate-100 rounded-full border border-slate-200 overflow-hidden flex items-center justify-center shrink-0">
+                <span class="font-bold text-slate-500 text-xs">${provider.name.charAt(0)}</span>
+              </div>
+              <div class="flex flex-col">
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider leading-none mb-0.5">Closest Technician:</span>
+                <span class="text-xs font-bold text-slate-800 leading-none mb-0.5">${provider.name}</span>
+                <span class="text-[10px] text-slate-500 font-medium leading-none">${provider.distanceStr} • 5-min ETA</span>
+              </div>
+              <div class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-r-[6px] border-t-[8px] border-transparent border-t-white drop-shadow-sm"></div>
             </div>
-          </Popup>
-        </Marker>
-      ))}
+            <div class="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-[#1b344a] flex items-center justify-center shadow-md border-2 border-white mt-1">
+               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+            </div>
+          `,
+          iconSize: [0, 0],
+          iconAnchor: [0, 0],
+        });
+
+        return (
+          <Marker 
+            key={provider.id} 
+            position={[provider.lat, provider.lng]} 
+            icon={customTooltipIcon}
+          >
+          </Marker>
+        );
+      })}
 
       <ZoomToSelected providers={providers} selectedId={selectedId} />
     </MapContainer>
