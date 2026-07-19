@@ -8,6 +8,7 @@ import { Loader2, CheckCircle2, ArrowLeft, MessageSquare, ChevronDown } from 'lu
 import LocationPickerWrapper from '@/components/LocationPickerWrapper';
 import NotificationBell from '@/components/NotificationBell';
 import UserDropdown from '@/components/UserDropdown';
+import BackButton from '@/components/BackButton';
 
 export default function EditProvider() {
   const router = useRouter();
@@ -164,6 +165,9 @@ export default function EditProvider() {
           <Link href="/dashboard" className="text-slate-400 hover:text-slate-600 transition-colors mr-1 sm:mr-2 shrink-0">
             <ArrowLeft className="w-4 h-4" />
           </Link>
+          <div className="mr-4">
+            <BackButton />
+          </div>
           Provider <span className="hidden sm:inline text-slate-400">| Locksmith Pro - Settings</span>
         </div>
       </header>

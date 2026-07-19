@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { Loader2, MessageSquare, ChevronDown, Clock, Smartphone, Settings, Star, Mail, MapPin, Award, CheckCircle2, DollarSign, Activity, KeyRound, Lock, User, AlertCircle } from 'lucide-react';
 import NotificationBell from '@/components/NotificationBell';
 import UserDropdown from '@/components/UserDropdown';
+import BackButton from '@/components/BackButton';
 
 type ServiceRequest = {
   id: number;
@@ -110,9 +111,14 @@ export default function Dashboard() {
       <main className="p-4 md:p-8 max-w-[1400px] mx-auto">
         
         {/* Title above banner */}
-        <div className="mb-4">
-          <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
-          <p className="text-slate-600 text-sm">Manage your orders and services.</p>
+        <div className="mb-4 flex items-center justify-between">
+          <div>
+            <div className="mb-2">
+              <BackButton />
+            </div>
+            <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
+            <p className="text-slate-600 text-sm">Manage your orders and services.</p>
+          </div>
         </div>
 
         {/* Dashboard Content Container */}

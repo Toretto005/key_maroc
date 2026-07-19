@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Loader2, CheckCircle2, User, Phone, Save, Upload, Image as ImageIcon, Mail } from 'lucide-react';
 import Link from 'next/link';
+import BackButton from '@/components/BackButton';
 
 export default function ClientSettings() {
   const [loading, setLoading] = useState(true);
@@ -79,6 +80,9 @@ export default function ClientSettings() {
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-slate-50 w-full font-sans">
       <main className="p-4 md:p-6 max-w-[1000px] mx-auto min-h-[80vh]">
+        <div className="mb-6">
+          <BackButton />
+        </div>
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center">
             <Save className="w-5 h-5" />

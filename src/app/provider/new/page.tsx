@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { Loader2, CheckCircle2 } from 'lucide-react';
 import LocationPickerWrapper from '@/components/LocationPickerWrapper';
+import BackButton from '@/components/BackButton';
 
 export default function CreateProvider() {
   const router = useRouter();
@@ -78,6 +79,9 @@ export default function CreateProvider() {
 
   return (
     <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6">
+      <div className="max-w-2xl mx-auto mb-4">
+        <BackButton />
+      </div>
       <div className="max-w-2xl mx-auto mb-8">
         <h1 className="text-2xl font-bold text-slate-900">Join Sarouti as a Key Maker</h1>
         <p className="text-slate-500 text-sm mt-0.5">Fill in your details and pin your location on the map.</p>

@@ -7,6 +7,8 @@ import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import dynamic from 'next/dynamic';
 import { createClient } from '@/lib/supabase/client';
+import AuthModal from '@/components/AuthModal';
+import BackButton from '@/components/BackButton';
 
 // Dynamically import map to avoid SSR issues with Leaflet
 const SearchMap = dynamic(() => import('@/components/SearchMap'), { ssr: false });
@@ -136,17 +138,20 @@ function SearchResultsContent() {
   const userLng = lng ? parseFloat(lng) : 0;
 
   return (
-    <div className="bg-slate-50 flex flex-col h-[calc(100dvh-4rem)]">
+    <div className="bg-slate-50 flex flex-col min-h-[calc(100dvh-4rem)] md:h-[calc(100dvh-4rem)]">
       {/* Main Content Area */}
-      <div className="flex flex-col md:flex-row flex-1 overflow-hidden">
+      <div className="flex flex-col md:flex-row flex-1 md:overflow-hidden">
 
         {/* Left Sidebar - List */}
-        <div className="w-full h-[50%] md:h-full md:w-[450px] lg:w-[480px] bg-slate-50 border-t md:border-t-0 md:border-r border-slate-200 overflow-hidden flex flex-col flex-shrink-0 order-2 md:order-1 relative">
+        <div className="w-full md:flex-1 md:h-full md:w-[450px] lg:w-[480px] bg-slate-50 border-t md:border-t-0 md:border-r border-slate-200 md:overflow-hidden flex flex-col flex-shrink-0 order-2 md:order-1 relative pb-[88px] md:pb-0">
           <div className="p-5 pb-3 flex-shrink-0">
+            <div className="mb-2 -mt-2">
+              <BackButton fallback="/" />
+            </div>
             <h2 className="text-xl font-bold text-slate-900">Available Locksmiths Near You</h2>
           </div>
 
-          <div className="flex-1 px-5 pb-24 flex flex-col gap-4 overflow-y-auto">
+          <div className="flex-1 px-5 pb-32 md:pb-24 flex flex-col gap-4 md:overflow-y-auto">
             {loading ? (
               <div className="flex items-center justify-center p-12">
                 <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
@@ -212,7 +217,7 @@ function SearchResultsContent() {
                       </div>
                     </div>
                     
-                    <p className="text-sm text-slate-600 truncate mb-1">Brooklyn Locksmith Pro</p>
+                    <p className="text-sm text-slate-600 truncate mb-1">{provider.address || 'Address not provided'}</p>
                     
                     <div className="flex items-center gap-1.5 text-xs text-emerald-600 font-bold mb-2 bg-emerald-50 w-fit px-2 py-0.5 rounded-full">
                       <ShieldCheck className="w-3.5 h-3.5" />
@@ -242,8 +247,8 @@ function SearchResultsContent() {
                     </a>
                   </div>
                   <div className="flex items-center gap-1.5 text-sm text-slate-600 font-medium justify-start xl:justify-end pl-1">
-                    <Clock className="w-4 h-4 text-slate-400" />
-                    <span>5 min arrival</span>
+                    <MapPin className="w-4 h-4 text-slate-400" />
+                    <span>{provider.distanceStr ? `${provider.distanceStr} away` : 'Nearby'}</span>
                   </div>
                 </div>
               </div>
@@ -251,7 +256,7 @@ function SearchResultsContent() {
           </div>
 
           {/* Bottom Service Types Tabs */}
-          <div className="absolute bottom-0 left-0 w-full bg-slate-50 border-t border-slate-200 p-4">
+          <div className="fixed md:absolute bottom-0 left-0 w-full bg-slate-50 border-t border-slate-200 p-4 z-[60] shadow-[0_-4px_15px_rgba(0,0,0,0.05)] md:shadow-none">
             <h4 className="text-xs font-bold text-slate-800 mb-3">Service Types</h4>
             <div className="flex items-center justify-between gap-2">
               <button className="flex flex-col items-center gap-1.5 flex-1 p-2 bg-white border-2 border-[#1b344a] rounded-xl text-[#1b344a] shadow-sm">
@@ -281,7 +286,7 @@ function SearchResultsContent() {
         </div>
 
         {/* Right Area - Real Map */}
-        <div className="w-full h-[50%] md:h-auto flex-1 relative z-0 order-1 md:order-2">
+        <div className="w-full h-[40vh] md:h-auto md:flex-1 relative z-0 order-1 md:order-2 shrink-0">
           {lat && lng ? (
             <SearchMap
               userLat={userLat}

@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client';
 import { MessageSquare, ChevronDown, ArrowLeft, Loader2, Search, Filter, ClipboardList } from 'lucide-react';
 import NotificationBell from '@/components/NotificationBell';
 import UserDropdown from '@/components/UserDropdown';
+import BackButton from '@/components/BackButton';
 
 type ServiceRequest = {
   id: number;
@@ -107,6 +108,9 @@ export default function OrdersPage() {
 
       <main className="p-4 md:p-8 max-w-[1400px] mx-auto">
         <div className="mb-6">
+          <div className="mb-2">
+            <BackButton />
+          </div>
           <h1 className="text-2xl font-bold text-slate-900">Manage Orders</h1>
           <p className="text-slate-600 text-sm mt-1">View and process all client service requests.</p>
         </div>

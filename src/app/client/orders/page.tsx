@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Loader2, CheckCircle2, User, Phone, ArrowLeft, Bell, ChevronDown, Clock, History, XCircle } from 'lucide-react';
 import Link from 'next/link';
+import BackButton from '@/components/BackButton';
 
 type ServiceRequest = {
   id: number;
@@ -81,6 +82,9 @@ export default function ClientOrders() {
 
 
       <main className="p-4 md:p-6 max-w-[1000px] mx-auto min-h-[80vh]">
+        <div className="mb-6">
+          <BackButton />
+        </div>
         <div className="w-full bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center">

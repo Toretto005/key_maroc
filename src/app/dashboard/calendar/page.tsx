@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client';
 import { MessageSquare, ChevronDown, ArrowLeft, ChevronLeft, ChevronRight, Loader2, Calendar as CalendarIcon, Clock, CheckCircle2, XCircle } from 'lucide-react';
 import NotificationBell from '@/components/NotificationBell';
 import UserDropdown from '@/components/UserDropdown';
+import BackButton from '@/components/BackButton';
 
 type ServiceRequest = {
   id: number;
@@ -147,6 +148,9 @@ export default function CalendarPage() {
       </header>
 
       <main className="p-4 md:p-6 max-w-[1400px] mx-auto">
+        <div className="mb-2">
+          <BackButton />
+        </div>
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 gap-4">
           <div>
             <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">

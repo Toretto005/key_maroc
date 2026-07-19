@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { Loader2, MessageSquare, ChevronDown, Star } from 'lucide-react';
 import NotificationBell from '@/components/NotificationBell';
 import UserDropdown from '@/components/UserDropdown';
+import BackButton from '@/components/BackButton';
 
 export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
@@ -63,6 +64,9 @@ export default function ProfilePage() {
         
         {/* Title above banner */}
         <div className="mb-4">
+          <div className="mb-2">
+            <BackButton />
+          </div>
           <h1 className="text-2xl font-bold text-slate-900">Profile: {profile?.name || 'Loading...'}</h1>
           <p className="text-slate-600 text-sm">{profile?.name || 'Locksmith Services'} | {profile?.address?.split(',').pop() || 'Loading...'}</p>
         </div>

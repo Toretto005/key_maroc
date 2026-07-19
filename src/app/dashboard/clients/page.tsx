@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { ArrowLeft, Loader2, User, Phone, Calendar, History, Clock, CheckCircle2, XCircle } from 'lucide-react';
 import NotificationBell from '@/components/NotificationBell';
 import UserDropdown from '@/components/UserDropdown';
+import BackButton from '@/components/BackButton';
 
 type ServiceRequest = {
   id: number;
@@ -121,6 +122,9 @@ export default function ClientsPage() {
       </header>
 
       <main className="p-4 md:p-8 max-w-[1400px] mx-auto">
+        <div className="mb-2">
+          <BackButton />
+        </div>
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
           <div>
             <h1 className="text-2xl font-bold text-slate-900">Client Directory</h1>

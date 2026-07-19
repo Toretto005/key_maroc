@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import ProviderMapWrapper from '@/components/ProviderMapWrapper';
 import ServicesSection from '@/components/ServicesSection';
 import RequestQuoteModal from '@/components/RequestQuoteModal';
+import BackButton from '@/components/BackButton';
 
 export default async function ProviderProfile({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -23,10 +24,15 @@ export default async function ProviderProfile({ params }: { params: Promise<{ id
   return (
     <div className="min-h-screen bg-slate-50">
 
-      <main className="max-w-4xl mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-3 gap-8">
+      <main className="max-w-4xl mx-auto px-4 py-6">
+        <div className="mb-4">
+          <BackButton />
+        </div>
         
-        {/* Left Column - Main Details */}
-        <div className="md:col-span-2 space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          
+          {/* Left Column - Main Details */}
+          <div className="md:col-span-2 space-y-6">
           
           {/* Profile Header */}
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
@@ -105,6 +111,7 @@ export default async function ProviderProfile({ params }: { params: Promise<{ id
               </div>
             </div>
           </div>
+        </div>
         </div>
       </main>
     </div>

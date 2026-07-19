@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Loader2, User, Phone, Settings as SettingsIcon, Mail } from 'lucide-react';
 import Link from 'next/link';
+import BackButton from '@/components/BackButton';
 
 export default function ClientProfile() {
   const [loading, setLoading] = useState(true);
@@ -50,6 +51,10 @@ export default function ClientProfile() {
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-slate-50 w-full font-sans">
       <main className="p-4 md:p-6 max-w-[1000px] mx-auto min-h-[80vh]">
+        <div className="mb-2">
+          <BackButton />
+        </div>
+        
         {/* Profile Card */}
         <div className="w-full bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8 mt-12">
           <div className="text-center mb-8">
