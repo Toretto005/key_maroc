@@ -244,20 +244,13 @@ function SearchResultsContent() {
                 </div>
 
                 <div className="flex flex-col xl:flex-row xl:items-center justify-between mt-4 pt-4 border-t border-slate-100 gap-3">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-1">
                     <button 
                       onClick={(e) => handleProfileClick(e, provider.id)}
-                      className="flex-1 xl:flex-none px-3 py-2 bg-[#1b344a] hover:bg-slate-800 text-white text-sm font-bold rounded-lg transition-colors shadow-sm text-center"
+                      className="w-full xl:w-32 px-3 py-2 bg-[#1b344a] hover:bg-slate-800 text-white text-sm font-bold rounded-lg transition-colors shadow-sm text-center"
                     >
-                      Book Now
+                      Book
                     </button>
-                    <a 
-                      href={`/provider/${provider.id}`}
-                      onClick={(e) => handleProfileClick(e, provider.id)}
-                      className="flex-1 xl:flex-none px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-bold rounded-lg transition-colors text-center whitespace-nowrap"
-                    >
-                      View Profile
-                    </a>
                   </div>
                   <div className="flex items-center gap-1.5 text-sm text-slate-600 font-medium justify-start xl:justify-end pl-1">
                     <MapPin className="w-4 h-4 text-slate-400" />

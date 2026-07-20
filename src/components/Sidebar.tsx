@@ -119,7 +119,7 @@ export default function Sidebar() {
             </>
           ) : user && role === 'client' ? (
             <>
-              <NavLink href="/client/dashboard" icon={LayoutDashboard} label="Dashboard" onClick={closeMenu} />
+              <NavLink href="/client/dashboard" icon={Home} label="Home" onClick={closeMenu} />
               <NavLink href="/search" icon={Search} label="Find Locksmith" onClick={closeMenu} />
               <NavLink href="/client/orders" icon={Calendar} label="My Bookings" onClick={closeMenu} />
               <NavLink href="/client/messages" icon={MessageSquare} label="Messages" onClick={closeMenu} />
