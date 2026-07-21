@@ -28,7 +28,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const cookieStore = await cookies();
-  const locale = (cookieStore.get("NEXT_LOCALE")?.value || "en") as Locale;
+  const locale = (cookieStore.get("NEXT_LOCALE")?.value || "ar") as Locale;
   const dir = locale === "ar" ? "rtl" : "ltr";
 
   return (
@@ -37,7 +37,7 @@ export default async function RootLayout({
       dir={dir}
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="flex flex-col md:flex-row h-screen overflow-hidden bg-slate-50">
+      <body className="flex flex-col md:flex-row h-dvh overflow-hidden bg-slate-50">
         <LanguageProvider initialLang={locale}>
           <Sidebar />
           {/* Main Content Area */}

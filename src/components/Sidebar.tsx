@@ -39,7 +39,8 @@ export default function Sidebar() {
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
+  const isRtl = lang === 'ar';
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -92,13 +93,18 @@ export default function Sidebar() {
         />
       )}
 
-      {/* Sidebar Container (Desktop & Mobile Drawer) */}
-      <aside className={`fixed md:sticky top-0 start-0 z-50 h-screen w-64 bg-[#112331] shadow-2xl md:shadow-xl text-slate-300 flex flex-col flex-shrink-0 transition-transform duration-300 ease-in-out md:translate-x-0 ${
-        isOpen ? 'translate-x-0' : 'max-md:-translate-x-full max-md:rtl:translate-x-full'
+      {/* Sidebar Container (Desktop & Mobile Drawer)
+          NOTE: position/transform are driven by our own `lang` state (isRtl), not the
+          ambient `dir` attribute or `rtl:` variant — third-party tools like the browser's
+          built-in translate feature can force `dir="rtl"` on <html> for Arabic targets
+          independently of our app state, which desyncs the logical start-0/rtl: math and
+          can leave the drawer visible on-screen with no way to close it. */}
+      <aside className={`fixed md:sticky top-0 z-50 h-dvh w-64 bg-[#112331] shadow-2xl md:shadow-xl text-slate-300 flex flex-col flex-shrink-0 transition-transform duration-300 ease-in-out md:translate-x-0 ${isRtl ? 'right-0' : 'left-0'} ${
+        isOpen ? 'translate-x-0' : (isRtl ? 'max-md:translate-x-full' : 'max-md:-translate-x-full')
       }`}>
         
         {/* Logo & Mobile Close Button */}
-        <div className="p-6 flex items-center justify-between">
+        <div className="shrink-0 p-6 flex items-center justify-between">
           <Link href={homeHref} onClick={closeMenu} className="flex items-center gap-2 font-bold text-white text-xl">
             <div className="relative flex items-center justify-center">
               <Hexagon className="w-8 h-8 text-blue-400 fill-blue-400/20" />
@@ -112,7 +118,7 @@ export default function Sidebar() {
         </div>
 
         {/* Main Navigation */}
-        <nav className="flex-1 space-y-1 overflow-y-auto mt-2">
+        <nav className="flex-1 min-h-0 space-y-1 overflow-y-auto mt-2">
           
           {user && role === 'maker' ? (
             <>
@@ -144,7 +150,7 @@ export default function Sidebar() {
         </nav>
 
         {/* Bottom Profile / Auth Actions */}
-        <div className="p-4 border-t border-slate-800">
+        <div className="shrink-0 p-4 border-t border-slate-800">
           {!loading && (
             user ? (
               <button 

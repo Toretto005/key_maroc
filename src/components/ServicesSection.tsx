@@ -71,9 +71,10 @@ export default function ServicesSection({ providerId, providerUserId }: Props) {
 
   const openEdit = (s: Service) => {
     setEditingService(s);
-    // Strip " MAD" suffix when loading into the numeric input
+    // Strip the fixed unit suffixes when loading into the numeric inputs
     const rawPrice = s.price.replace(/\s*MAD$/i, '');
-    setForm({ name: s.name, description: s.description, price: rawPrice, duration: s.duration });
+    const rawDuration = s.duration.replace(/\s*min$/i, '');
+    setForm({ name: s.name, description: s.description, price: rawPrice, duration: rawDuration });
     setShowModal(true);
   };
 
@@ -82,7 +83,8 @@ export default function ServicesSection({ providerId, providerUserId }: Props) {
     setSaving(true);
     try {
       const priceFormatted = form.price ? `${form.price} MAD` : '';
-      const payload = { ...form, price: priceFormatted };
+      const durationFormatted = form.duration ? `${form.duration} min` : '';
+      const payload = { ...form, price: priceFormatted, duration: durationFormatted };
       if (editingService) {
         await fetch(`/api/services/${editingService.id}`, {
           method: 'PUT',
@@ -204,13 +206,13 @@ export default function ServicesSection({ providerId, providerUserId }: Props) {
               )}
               <div className="flex flex-wrap gap-2 mt-2">
                 {s.price && (
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-green-50 text-green-700 text-xs font-semibold rounded-full">
+                  <span dir="ltr" className="inline-flex items-center gap-1 px-2.5 py-1 bg-green-50 text-green-700 text-xs font-semibold rounded-full">
                     <Tag className="w-3 h-3" />
                     {s.price}
                   </span>
                 )}
                 {s.duration && (
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-50 text-blue-700 text-xs font-semibold rounded-full">
+                  <span dir="ltr" className="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-50 text-blue-700 text-xs font-semibold rounded-full">
                     <Clock className="w-3 h-3" />
                     {s.duration}
                   </span>
@@ -281,7 +283,7 @@ export default function ServicesSection({ providerId, providerUserId }: Props) {
                       value={form.price}
                       onChange={e => setForm({ ...form, price: e.target.value })}
                       placeholder="150"
-                      className="flex-1 px-4 py-3 outline-none text-sm bg-white"
+                      className="flex-1 min-w-0 px-4 py-3 outline-none text-sm bg-white"
                     />
                     <span className="px-3 flex items-center bg-slate-50 border-s border-slate-200 text-slate-500 font-semibold text-sm">
                       MAD
@@ -292,13 +294,19 @@ export default function ServicesSection({ providerId, providerUserId }: Props) {
                   <label className="block text-sm font-medium text-slate-700 mb-1.5">
                     <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> {t("services.duration")}</span>
                   </label>
-                  <input
-                    type="text"
-                    value={form.duration}
-                    onChange={e => setForm({ ...form, duration: e.target.value })}
-                    placeholder={t("placeholder.duration_alt")}
-                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-sm"
-                  />
+                  <div className="flex rounded-xl border border-slate-200 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500 overflow-hidden transition-all">
+                    <input
+                      type="number"
+                      min="0"
+                      value={form.duration}
+                      onChange={e => setForm({ ...form, duration: e.target.value })}
+                      placeholder={t("placeholder.duration_alt")}
+                      className="flex-1 min-w-0 px-4 py-3 outline-none text-sm bg-white"
+                    />
+                    <span className="px-3 flex items-center bg-slate-50 border-s border-slate-200 text-slate-500 font-semibold text-sm">
+                      {t("services.min")}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>

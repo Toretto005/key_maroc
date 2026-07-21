@@ -68,8 +68,8 @@ export default function ManageServices() {
     setFormData({
       name: svc.name,
       description: svc.description,
-      price: svc.price,
-      duration: svc.duration,
+      price: svc.price.replace(/\s*MAD$/i, ''),
+      duration: svc.duration.replace(/\s*min$/i, ''),
       imageUrl: svc.imageUrl || ''
     });
     setEditingId(svc.id);
@@ -124,11 +124,16 @@ export default function ManageServices() {
     e.preventDefault();
     setSaving(true);
     try {
+      const payload = {
+        ...formData,
+        price: formData.price ? `${formData.price} MAD` : '',
+        duration: formData.duration ? `${formData.duration} min` : '',
+      };
       if (editingId) {
         const res = await fetch(`/api/services/${editingId}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(formData)
+          body: JSON.stringify(payload)
         });
         const data = await res.json();
         if (data.success) {
@@ -141,7 +146,7 @@ export default function ManageServices() {
         const res = await fetch('/api/services', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(formData)
+          body: JSON.stringify(payload)
         });
         const data = await res.json();
         if (data.success) {
@@ -221,10 +226,10 @@ export default function ManageServices() {
                       </div>
                     )}
                     <div className="flex gap-4 mt-3">
-                      <span className="bg-blue-50 text-blue-700 px-2 py-1 rounded-md text-xs font-bold">
+                      <span dir="ltr" className="bg-blue-50 text-blue-700 px-2 py-1 rounded-md text-xs font-bold">
                         {svc.price}
                       </span>
-                      <span className="bg-slate-100 text-slate-700 px-2 py-1 rounded-md text-xs font-bold">
+                      <span dir="ltr" className="bg-slate-100 text-slate-700 px-2 py-1 rounded-md text-xs font-bold">
                         {svc.duration}
                       </span>
                     </div>
@@ -313,26 +318,38 @@ export default function ManageServices() {
 
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wide">{t("provider.price")}</label>
-                  <input
-                    required
-                    type="text"
-                    value={formData.price}
-                    onChange={e => setFormData({ ...formData, price: e.target.value })}
-                    placeholder={t("placeholder.service_price")}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm transition-all bg-slate-50 focus:bg-white"
-                  />
+                  <div className="flex border border-slate-300 rounded-xl focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500 overflow-hidden transition-all bg-slate-50 focus-within:bg-white">
+                    <input
+                      required
+                      type="number"
+                      min="0"
+                      value={formData.price}
+                      onChange={e => setFormData({ ...formData, price: e.target.value })}
+                      placeholder={t("placeholder.service_price")}
+                      className="flex-1 min-w-0 px-3 py-2 outline-none text-sm bg-transparent"
+                    />
+                    <span className="px-3 flex items-center bg-slate-100 border-s border-slate-300 text-slate-500 font-semibold text-sm">
+                      MAD
+                    </span>
+                  </div>
                 </div>
 
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wide">{t("provider.duration")}</label>
-                  <input
-                    required
-                    type="text"
-                    value={formData.duration}
-                    onChange={e => setFormData({ ...formData, duration: e.target.value })}
-                    placeholder={t("placeholder.service_duration")}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm transition-all bg-slate-50 focus:bg-white"
-                  />
+                  <div className="flex border border-slate-300 rounded-xl focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500 overflow-hidden transition-all bg-slate-50 focus-within:bg-white">
+                    <input
+                      required
+                      type="number"
+                      min="0"
+                      value={formData.duration}
+                      onChange={e => setFormData({ ...formData, duration: e.target.value })}
+                      placeholder={t("placeholder.service_duration")}
+                      className="flex-1 min-w-0 px-3 py-2 outline-none text-sm bg-transparent"
+                    />
+                    <span className="px-3 flex items-center bg-slate-100 border-s border-slate-300 text-slate-500 font-semibold text-sm">
+                      {t("services.min")}
+                    </span>
+                  </div>
                 </div>
 
                 <div className="flex gap-2 pt-4">

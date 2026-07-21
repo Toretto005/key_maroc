@@ -210,20 +210,33 @@ export default function Dashboard() {
                 {services.length > 0 ? (
                   services.slice(0,4).map((service, idx) => (
                     <div key={idx} className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex flex-col hover:border-slate-300 transition-colors">
-                      <div className="w-10 h-10 rounded-lg bg-[#e8f1f8] flex items-center justify-center text-[#2a6892] mb-3">
-                        <KeyRound className="w-5 h-5" />
-                      </div>
+                      {service.imageUrl ? (
+                        <div className="w-full h-24 -mt-4 -ms-4 mb-3 rounded-t-xl overflow-hidden bg-slate-100" style={{ width: 'calc(100% + 2rem)' }}>
+                          <img src={service.imageUrl} alt={service.name} className="w-full h-full object-cover" />
+                        </div>
+                      ) : (
+                        <div className="w-10 h-10 rounded-lg bg-[#e8f1f8] flex items-center justify-center text-[#2a6892] mb-3">
+                          <KeyRound className="w-5 h-5" />
+                        </div>
+                      )}
                       <h5 className="font-bold text-slate-900 text-sm leading-tight mb-0.5">{service.name}</h5>
                       <span className="text-[11px] font-bold text-emerald-600 mb-2">
                         {t("provider.active")}
                       </span>
-                      <p className="text-[11px] text-slate-500 mt-auto">{t("provider.base_price")}</p>
-                      <div className="flex items-center justify-between mt-0.5">
-                        <span className="font-bold text-slate-900 text-sm">{service.price}</span>
-                        <div className="flex gap-1">
-                           <Link href="/provider/services" className="px-3 py-1.5 text-xs font-bold text-white bg-[#112331] hover:bg-slate-800 rounded-md transition-colors shadow-sm">
-                             {t("common.edit")}
-                           </Link>
+                      <div className="mt-auto">
+                        {service.duration && (
+                          <p className="text-[11px] text-slate-500 mb-1">
+                            {t("provider.duration")}: <span dir="ltr" className="font-semibold text-slate-700">{service.duration}</span>
+                          </p>
+                        )}
+                        <p className="text-[11px] text-slate-500">{t("provider.base_price")}</p>
+                        <div className="flex items-center justify-between mt-0.5">
+                          <span dir="ltr" className="font-bold text-slate-900 text-sm">{service.price}</span>
+                          <div className="flex gap-1">
+                             <Link href="/provider/services" className="px-3 py-1.5 text-xs font-bold text-white bg-[#112331] hover:bg-slate-800 rounded-md transition-colors shadow-sm">
+                               {t("common.edit")}
+                             </Link>
+                          </div>
                         </div>
                       </div>
                     </div>
