@@ -7,6 +7,8 @@ import { createClient } from '@/lib/supabase/client';
 import { Loader2, Plus, Edit2, Trash2, CheckCircle2, ArrowLeft, MessageSquare, ChevronDown } from 'lucide-react';
 import NotificationBell from '@/components/NotificationBell';
 import UserDropdown from '@/components/UserDropdown';
+import FileInput from '@/components/FileInput';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 type Service = {
   id: number;
@@ -22,6 +24,7 @@ export default function ManageServices() {
   const [services, setServices] = useState<Service[]>([]);
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const { t } = useLanguage();
   
   // Form State
   const [isEditing, setIsEditing] = useState(false);
@@ -98,15 +101,15 @@ export default function ManageServices() {
       const { data } = supabase.storage.from('provider_avatars').getPublicUrl(fileName);
       setFormData({ ...formData, imageUrl: data.publicUrl });
     } catch (error) {
-      alert('Error uploading image! Please try again.');
-      console.error(error);
+      alert(t("settings.error"));
     } finally {
       setUploading(false);
     }
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm("Are you sure you want to delete this service?")) return;
+    if (!confirm(t("provider.delete_confirm"))) return;
+
     try {
       const res = await fetch(`/api/services/${id}`, { method: 'DELETE' });
       if (res.ok) {
@@ -150,7 +153,7 @@ export default function ManageServices() {
       }
     } catch (e) {
       console.error(e);
-      alert("An unexpected error occurred.");
+      alert(t("settings.error"));
     } finally {
       setSaving(false);
     }
@@ -169,18 +172,18 @@ export default function ManageServices() {
       {/* Top Header */}
       <header className="h-16 bg-white border-b border-slate-200 px-6 flex items-center sticky top-0 z-40">
         <div className="text-slate-800 font-medium flex items-center gap-2">
-          <Link href="/dashboard" className="text-slate-400 hover:text-slate-600 transition-colors mr-2">
+          <Link href="/dashboard" className="text-slate-400 hover:text-slate-600 transition-colors me-2">
             <ArrowLeft className="w-4 h-4" />
           </Link>
-          Provider <span className="text-slate-400">| Locksmith Pro - Services</span>
+          {t("dashboard.provider")} <span className="text-slate-400">| Locksmith Pro - Services</span>
         </div>
       </header>
 
       <main className="p-6 max-w-[1400px] mx-auto">
         <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">Manage Services</h1>
-            <p className="text-slate-500 mt-1 text-sm">Add or edit the services you offer to clients.</p>
+            <h1 className="text-2xl font-bold text-slate-900">{t("provider.services_title")}</h1>
+            <p className="text-slate-500 mt-1 text-sm">{t("provider.services_subtitle")}</p>
           </div>
           {!isEditing && (
             <button 
@@ -188,7 +191,7 @@ export default function ManageServices() {
               className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-4 py-2.5 rounded-xl font-semibold transition-colors shadow-sm text-sm"
             >
               <Plus className="w-4 h-4" />
-              Add Service
+              {t("provider.add_service")}
             </button>
           )}
         </div>
@@ -198,12 +201,12 @@ export default function ManageServices() {
           <div className={`md:col-span-2 space-y-4 ${isEditing && 'opacity-50 pointer-events-none md:pointer-events-auto md:opacity-100'}`}>
             {services.length === 0 ? (
               <div className="bg-white p-8 rounded-2xl border border-slate-200 text-center shadow-sm">
-                <p className="text-slate-500 mb-4">You haven't added any services yet.</p>
+                <p className="text-slate-500 mb-4">{t("provider.no_services")}</p>
                 <button 
                   onClick={() => setIsEditing(true)}
                   className="text-blue-600 font-semibold hover:underline"
                 >
-                  Create your first service
+                  {t("provider.create_first_service")}
                 </button>
               </div>
             ) : (
@@ -251,85 +254,83 @@ export default function ManageServices() {
           {isEditing && (
             <div className="md:col-span-1 bg-white p-6 rounded-2xl border border-blue-200 shadow-lg sticky top-24">
               <h2 className="text-lg font-bold text-slate-900 mb-4 pb-3 border-b border-slate-100">
-                {editingId ? 'Edit Service' : 'Add New Service'}
+                {editingId ? t("provider.edit_service") : t("provider.add_new_service")}
               </h2>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wide">Service Name</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wide">{t("provider.service_name")}</label>
                   <input
                     required
                     type="text"
                     value={formData.name}
                     onChange={e => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="e.g. Standard Key Duplication"
+                    placeholder={t("placeholder.service_name")}
                     className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm transition-all bg-slate-50 focus:bg-white"
                   />
                 </div>
                 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wide">Service Photo (Optional)</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wide">{t("provider.service_photo")}</label>
                   <div className="flex items-center gap-4">
                     {formData.imageUrl ? (
                       <div className="relative w-20 h-20 rounded-xl overflow-hidden border border-slate-200 shrink-0">
-                        <img src={formData.imageUrl} alt="Preview" className="w-full h-full object-cover" />
+                        <img src={formData.imageUrl} alt={t("alt.preview")} className="w-full h-full object-cover" />
                         <button 
                           type="button"
                           onClick={() => setFormData({ ...formData, imageUrl: '' })}
                           className="absolute inset-0 bg-black/50 text-white text-xs font-bold opacity-0 hover:opacity-100 flex items-center justify-center transition-opacity"
                         >
-                          Remove
+                          {t("provider.remove")}
                         </button>
                       </div>
                     ) : (
                       <div className="w-20 h-20 rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 flex items-center justify-center shrink-0">
-                        <span className="text-slate-400 text-xs">No Image</span>
+                        <span className="text-slate-400 text-xs">{t("provider.no_image")}</span>
                       </div>
                     )}
                     <div className="flex-1">
-                      <input 
-                        type="file" 
+                      <FileInput
                         accept="image/*"
                         onChange={handleImageUpload}
                         disabled={uploading}
-                        className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 disabled:opacity-50"
                       />
-                      {uploading && <p className="text-xs text-blue-600 mt-1 font-medium">Uploading...</p>}
+                      {uploading && <p className="text-xs text-blue-600 mt-1 font-medium">{t("provider.uploading")}</p>}
                     </div>
                   </div>
                 </div>
                 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wide">Description</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wide">{t("provider.description")}</label>
                   <textarea
                     required
                     rows={3}
                     value={formData.description}
                     onChange={e => setFormData({ ...formData, description: e.target.value })}
-                    placeholder="Describe what this service includes..."
+                    placeholder={t("placeholder.service_desc")}
                     className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm resize-none transition-all bg-slate-50 focus:bg-white"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wide">Price</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wide">{t("provider.price")}</label>
                   <input
                     required
                     type="text"
                     value={formData.price}
                     onChange={e => setFormData({ ...formData, price: e.target.value })}
-                    placeholder="e.g. 50 MAD or Starting at 100 MAD"
+                    placeholder={t("placeholder.service_price")}
                     className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm transition-all bg-slate-50 focus:bg-white"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wide">Estimated Duration</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wide">{t("provider.duration")}</label>
                   <input
                     required
                     type="text"
                     value={formData.duration}
                     onChange={e => setFormData({ ...formData, duration: e.target.value })}
-                    placeholder="e.g. 15 mins, 1 hour"
+                    placeholder={t("placeholder.service_duration")}
                     className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm transition-all bg-slate-50 focus:bg-white"
                   />
                 </div>
@@ -340,7 +341,7 @@ export default function ManageServices() {
                     onClick={resetForm}
                     className="flex-1 px-4 py-2 border border-slate-200 text-slate-600 rounded-xl font-bold hover:bg-slate-50 hover:text-slate-900 transition-colors text-sm"
                   >
-                    Cancel
+                    {t("provider.cancel")}
                   </button>
                   <button
                     type="submit"
@@ -348,7 +349,7 @@ export default function ManageServices() {
                     className="flex-1 flex items-center justify-center gap-2 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-colors text-sm disabled:opacity-70 shadow-sm"
                   >
                     {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
-                    Save
+                    {t("provider.save")}
                   </button>
                 </div>
               </form>

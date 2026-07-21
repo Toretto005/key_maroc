@@ -8,6 +8,8 @@ import Link from 'next/link';
 import type { User } from '@supabase/supabase-js';
 import UserDropdown from './UserDropdown';
 import NotificationBell from './NotificationBell';
+import LanguageSwitcher from './LanguageSwitcher';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 export default function TopHeader() {
   const supabase = createClient();
@@ -18,6 +20,7 @@ export default function TopHeader() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [searching, setSearching] = useState(false);
+  const { t } = useLanguage();
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -79,26 +82,29 @@ export default function TopHeader() {
   return (
     <header className="h-16 bg-white border-b border-slate-200 px-4 md:px-6 flex items-center justify-between sticky top-0 z-50 shrink-0">
       <div className="flex items-center gap-4 flex-1">
-        <h1 className="hidden md:block font-bold text-slate-900 text-xl mr-4">LockPro Network</h1>
+        <h1 className="hidden md:block font-bold text-slate-900 text-xl me-4">{t("header.title")}</h1>
         
         {/* Global Search Bar */}
         <form onSubmit={handleTextSearch} className="max-w-md w-full relative hidden sm:block">
           {searching ? (
-            <Loader2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 animate-spin" />
+            <Loader2 className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 animate-spin" />
           ) : (
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Search className="absolute start-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           )}
           <input
             type="text"
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            placeholder="Search city, e.g. Ben Guerir, Morocco"
-            className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
+            placeholder={t("header.search_placeholder")}
+            className="w-full ps-10 pe-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
           />
         </form>
       </div>
 
       <div className="flex items-center gap-4">
+        <div className="hidden md:block">
+          <LanguageSwitcher />
+        </div>
         <NotificationBell />
         <button className="text-slate-400 hover:text-slate-600 transition-colors">
           <MessageSquare className="w-5 h-5" />
@@ -116,7 +122,7 @@ export default function TopHeader() {
           />
         ) : (
           <Link href="/auth/login" className="text-sm font-medium text-blue-600 hover:text-blue-700">
-            Sign In
+            {t("header.sign_in")}
           </Link>
         )}
       </div>

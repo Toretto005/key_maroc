@@ -7,8 +7,8 @@ import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import dynamic from 'next/dynamic';
 import { createClient } from '@/lib/supabase/client';
-import AuthModal from '@/components/AuthModal';
 import BackButton from '@/components/BackButton';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 // Dynamically import map to avoid SSR issues with Leaflet
 const SearchMap = dynamic(() => import('@/components/SearchMap'), { ssr: false });
@@ -24,9 +24,11 @@ type Provider = {
   lng: number;
   avatarUrl?: string;
   about?: string;
+  skills?: string;
 };
 
 function SearchResultsContent() {
+  const { t } = useLanguage();
   const searchParams = useSearchParams();
   const router = useRouter();
   const lat = searchParams.get('lat');
@@ -156,12 +158,12 @@ function SearchResultsContent() {
       <div className="flex flex-col md:flex-row flex-1 md:overflow-hidden">
 
         {/* Left Sidebar - List */}
-        <div className="w-full md:flex-1 md:h-full md:w-[450px] lg:w-[480px] bg-slate-50 border-t md:border-t-0 md:border-r border-slate-200 md:overflow-hidden flex flex-col flex-shrink-0 order-2 md:order-1 relative pb-[88px] md:pb-0">
+        <div className="w-full md:flex-1 md:h-full md:w-[450px] lg:w-[480px] bg-slate-50 border-t md:border-t-0 md:border-e border-slate-200 md:overflow-hidden flex flex-col flex-shrink-0 order-2 md:order-1 relative pb-[88px] md:pb-0">
           <div className="p-5 pb-3 flex-shrink-0">
             <div className="mb-2 -mt-2">
               <BackButton fallback="/" />
             </div>
-            <h2 className="text-xl font-bold text-slate-900">Available Locksmiths Near You</h2>
+            <h2 className="text-xl font-bold text-slate-900">{t("search.title")}</h2>
           </div>
 
           <div className="flex-1 px-5 pb-32 md:pb-24 flex flex-col gap-4 md:overflow-y-auto">
@@ -174,9 +176,9 @@ function SearchResultsContent() {
                 <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mb-4">
                   <MapPin className="w-8 h-8" />
                 </div>
-                <h3 className="text-lg font-bold text-slate-900 mb-2">Find Nearby Locksmiths</h3>
+                <h3 className="text-lg font-bold text-slate-900 mb-2">{t("search.share_location")}</h3>
                 <p className="text-slate-500 text-sm mb-6 max-w-[250px]">
-                  Share your location to instantly see key makers available around you.
+                  {t("search.share_location_desc")}
                 </p>
                 <button 
                   onClick={handleLocateMe}
@@ -184,15 +186,15 @@ function SearchResultsContent() {
                   className="px-6 py-3 bg-[#1b344a] hover:bg-slate-800 text-white font-bold rounded-xl transition-all shadow-sm flex items-center gap-2 w-full justify-center disabled:opacity-70"
                 >
                   {locating ? <Loader2 className="w-5 h-5 animate-spin" /> : <MapPin className="w-5 h-5" />}
-                  {locating ? "Locating..." : "Use My Location"}
+                  {locating ? t("search.locating") : t("search.use_my_location")}
                 </button>
               </div>
             ) : filteredProviders.length === 0 ? (
               <div className="text-center p-8 text-slate-500 bg-white rounded-2xl border border-slate-200">
-                <p>No key makers found for the selected criteria.</p>
+                <p>{t("search.no_results")}</p>
                 {userRole === 'maker' && (
                   <Link href="/provider/new" className="inline-block mt-4 text-blue-600 font-medium hover:underline">
-                    Add a Key Maker
+                    {t("search.add_key_maker")}
                   </Link>
                 )}
               </div>
@@ -219,7 +221,7 @@ function SearchResultsContent() {
                   {/* Info */}
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-start mb-1">
-                      <a href={`/provider/${provider.id}`} onClick={(e) => handleProfileClick(e, provider.id)} className="block pr-2 truncate">
+                      <a href={`/provider/${provider.id}`} onClick={(e) => handleProfileClick(e, provider.id)} className="block pe-2 truncate">
                         <h3 className="font-bold text-slate-900 text-lg truncate hover:text-blue-600 transition-colors">
                           {provider.name}
                         </h3>
@@ -230,15 +232,15 @@ function SearchResultsContent() {
                       </div>
                     </div>
                     
-                    <p className="text-sm text-slate-600 truncate mb-1">{provider.address || 'Address not provided'}</p>
-                    
+                    <p className="text-sm text-slate-600 truncate mb-1">{provider.address || t("search.address_not_provided")}</p>
+
                     <div className="flex items-center gap-1.5 text-xs text-emerald-600 font-bold mb-2 bg-emerald-50 w-fit px-2 py-0.5 rounded-full">
                       <ShieldCheck className="w-3.5 h-3.5" />
-                      ALOA Certified
+                      {t("search.aloa_certified")}
                     </div>
-                    
+
                     <p className="text-xs text-slate-500 leading-relaxed line-clamp-2">
-                      {provider.about || "Specializations in residential, commercial, automotive 24/7."}
+                      {provider.about || t("search.default_about")}
                     </p>
                   </div>
                 </div>
@@ -249,12 +251,12 @@ function SearchResultsContent() {
                       onClick={(e) => handleProfileClick(e, provider.id)}
                       className="w-full xl:w-32 px-3 py-2 bg-[#1b344a] hover:bg-slate-800 text-white text-sm font-bold rounded-lg transition-colors shadow-sm text-center"
                     >
-                      Book
+                      {t("search.book_now")}
                     </button>
                   </div>
-                  <div className="flex items-center gap-1.5 text-sm text-slate-600 font-medium justify-start xl:justify-end pl-1">
+                  <div className="flex items-center gap-1.5 text-sm text-slate-600 font-medium justify-start xl:justify-end ps-1">
                     <MapPin className="w-4 h-4 text-slate-400" />
-                    <span>{provider.distanceStr ? `${provider.distanceStr} away` : 'Nearby'}</span>
+                    <span>{provider.distanceStr ? `${provider.distanceStr} ${t("search.away")}` : t("search.nearby")}</span>
                   </div>
                 </div>
               </div>
@@ -262,14 +264,15 @@ function SearchResultsContent() {
           </div>
 
           {/* Bottom Service Types Tabs */}
-          <div className="fixed md:absolute bottom-0 left-0 w-full bg-slate-50 border-t border-slate-200 p-4 z-[60] shadow-[0_-4px_15px_rgba(0,0,0,0.05)] md:shadow-none overflow-x-auto hide-scrollbar">
-            <h4 className="text-xs font-bold text-slate-800 mb-3">Service Types</h4>
-            <div className="flex items-center gap-2 min-w-max">
+          <div className="fixed md:absolute bottom-0 start-0 w-full bg-slate-50 border-t border-slate-200 p-4 z-[60] shadow-[0_-4px_15px_rgba(0,0,0,0.05)] md:shadow-none">
+            <h4 className="text-xs font-bold text-slate-800 mb-3">{t("search.service_types")}</h4>
+            <div className="relative -mx-4 px-4 md:mx-0 md:px-0">
+              <div className="flex items-center gap-2 min-w-max overflow-x-auto hide-scrollbar">
               <button 
                 onClick={() => setSelectedServiceType('All')}
                 className={`flex flex-col items-center gap-1.5 px-4 py-2 rounded-xl transition-colors ${selectedServiceType === 'All' ? 'bg-[#1b344a] text-white border-2 border-[#1b344a]' : 'bg-white text-slate-500 border border-slate-200 hover:border-slate-300'}`}
               >
-                <span className="text-xs font-bold">All</span>
+                <span className="text-xs font-bold">{t("search.all")}</span>
               </button>
               <button 
                 onClick={() => setSelectedServiceType('Emergency')}
@@ -278,35 +281,37 @@ function SearchResultsContent() {
                 <div className="relative">
                   <Bell className={`w-5 h-5 ${selectedServiceType === 'Emergency' ? 'text-white' : 'fill-red-500 text-red-500'}`} />
                   {selectedServiceType !== 'Emergency' && (
-                    <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+                    <span className="absolute -top-1 -end-1 flex h-2.5 w-2.5">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
                       <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
                     </span>
                   )}
                 </div>
-                <span className="text-xs font-bold">Emergency</span>
+                <span className="text-xs font-bold">{t("search.emergency")}</span>
               </button>
               <button 
                 onClick={() => setSelectedServiceType('Commercial')}
                 className={`flex flex-col items-center gap-1.5 flex-1 min-w-[80px] p-2 rounded-xl transition-colors ${selectedServiceType === 'Commercial' ? 'bg-[#1b344a] text-white border-2 border-[#1b344a]' : 'bg-white text-slate-500 border border-slate-200 hover:border-slate-300'}`}
               >
                 <Building2 className="w-5 h-5" />
-                <span className="text-xs font-medium">Commercial</span>
+                <span className="text-xs font-medium">{t("search.commercial")}</span>
               </button>
               <button 
                 onClick={() => setSelectedServiceType('Auto')}
                 className={`flex flex-col items-center gap-1.5 flex-1 min-w-[80px] p-2 rounded-xl transition-colors ${selectedServiceType === 'Auto' ? 'bg-[#1b344a] text-white border-2 border-[#1b344a]' : 'bg-white text-slate-500 border border-slate-200 hover:border-slate-300'}`}
               >
                 <Car className="w-5 h-5" />
-                <span className="text-xs font-medium">Auto</span>
+                <span className="text-xs font-medium">{t("search.auto")}</span>
               </button>
               <button 
                 onClick={() => setSelectedServiceType('Residential')}
                 className={`flex flex-col items-center gap-1.5 flex-1 min-w-[80px] p-2 rounded-xl transition-colors ${selectedServiceType === 'Residential' ? 'bg-[#1b344a] text-white border-2 border-[#1b344a]' : 'bg-white text-slate-500 border border-slate-200 hover:border-slate-300'}`}
               >
                 <Home className="w-5 h-5" />
-                <span className="text-xs font-medium">Residential</span>
+                <span className="text-xs font-medium">{t("search.residential")}</span>
               </button>
+              </div>
+              <div className="pointer-events-none absolute inset-y-0 end-0 w-8 bg-gradient-to-r rtl:bg-gradient-to-l from-transparent to-slate-50 md:hidden" />
             </div>
           </div>
         </div>
@@ -344,29 +349,29 @@ function SearchResultsContent() {
               <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
                 <ShieldCheck className="w-8 h-8" />
               </div>
-              <h3 className="text-2xl font-bold text-slate-900 mb-2">Authentication Required</h3>
+              <h3 className="text-2xl font-bold text-slate-900 mb-2">{t("search.auth_required")}</h3>
               <p className="text-slate-600 mb-8">
-                Please sign in or create an account to view full key maker profiles and request quotes.
+                {t("search.auth_desc_profile")}
               </p>
-              
+
               <div className="flex flex-col gap-3">
-                <Link 
+                <Link
                   href={`/auth/login?redirect=/provider/${pendingProviderId}`}
                   className="w-full py-3.5 bg-[#1b344a] hover:bg-slate-800 text-white rounded-xl font-bold transition-all shadow-sm"
                 >
-                  Log In
+                  {t("search.log_in")}
                 </Link>
-                <Link 
+                <Link
                   href={`/auth/signup?redirect=/provider/${pendingProviderId}`}
                   className="w-full py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold transition-all"
                 >
-                  Create an Account
+                  {t("search.create_account")}
                 </Link>
-                <button 
+                <button
                   onClick={() => setShowAuthModal(false)}
                   className="mt-2 text-sm font-medium text-slate-500 hover:text-slate-700"
                 >
-                  Cancel
+                  {t("common.cancel")}
                 </button>
               </div>
             </div>

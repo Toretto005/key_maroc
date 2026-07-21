@@ -9,6 +9,8 @@ import LocationPickerWrapper from '@/components/LocationPickerWrapper';
 import NotificationBell from '@/components/NotificationBell';
 import UserDropdown from '@/components/UserDropdown';
 import BackButton from '@/components/BackButton';
+import FileInput from '@/components/FileInput';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 export default function EditProvider() {
   const router = useRouter();
@@ -16,6 +18,7 @@ export default function EditProvider() {
   const [fetching, setFetching] = useState(true);
   const [showSuccess, setShowSuccess] = useState(false);
   const [providerId, setProviderId] = useState<number | null>(null);
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     name: '',
     address: '',
@@ -86,7 +89,7 @@ export default function EditProvider() {
       const { data } = supabase.storage.from('provider_avatars').getPublicUrl(fileName);
       setFormData({ ...formData, avatarUrl: data.publicUrl });
     } catch (error) {
-      alert('Error uploading image! Please try again.');
+      alert(t("provider_edit.error_image"));
       console.error(error);
     } finally {
       setLoading(false);
@@ -111,7 +114,7 @@ export default function EditProvider() {
       const { data } = supabase.storage.from('provider_avatars').getPublicUrl(fileName);
       setFormData({ ...formData, bannerUrl: data.publicUrl });
     } catch (error) {
-      alert('Error uploading banner! Please try again.');
+      alert(t("provider_edit.error_banner"));
       console.error(error);
     } finally {
       setLoading(false);
@@ -121,7 +124,7 @@ export default function EditProvider() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.lat || !formData.lng) {
-      alert("Please select your location on the map before submitting.");
+      alert(t("provider_edit.error_map"));
       return;
     }
 
@@ -139,11 +142,11 @@ export default function EditProvider() {
         setTimeout(() => setShowSuccess(false), 5000);
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
-        alert("Error updating profile. Please try again.");
+        alert(t("provider_edit.error_update"));
       }
     } catch (error) {
       console.error(error);
-      alert("An unexpected error occurred.");
+      alert(t("provider_edit.error_unexpected"));
     } finally {
       setLoading(false);
     }
@@ -162,28 +165,28 @@ export default function EditProvider() {
       {/* Top Header */}
       <header className="h-16 bg-white border-b border-slate-200 px-4 md:px-6 flex items-center sticky top-0 z-40">
         <div className="text-slate-800 font-medium flex items-center gap-2 text-sm truncate max-w-[150px] sm:max-w-none">
-          <Link href="/dashboard" className="text-slate-400 hover:text-slate-600 transition-colors mr-1 sm:mr-2 shrink-0">
+          <Link href="/dashboard" className="text-slate-400 hover:text-slate-600 transition-colors me-1 sm:me-2 shrink-0">
             <ArrowLeft className="w-4 h-4" />
           </Link>
-          <div className="mr-4">
+          <div className="me-4">
             <BackButton />
           </div>
-          Provider <span className="hidden sm:inline text-slate-400">| Locksmith Pro - Settings</span>
+          {t("dashboard.provider")} <span className="hidden sm:inline text-slate-400">| {t("dashboard.title_settings")}</span>
         </div>
       </header>
 
       <main className="p-4 md:p-6 max-w-[1400px] mx-auto relative">
         {/* Success Toast */}
-        <div className={`fixed top-20 right-4 sm:right-6 z-50 transition-all duration-500 ease-out transform ${showSuccess ? 'translate-y-0 opacity-100' : '-translate-y-4 opacity-0 pointer-events-none'}`}>
+        <div className={`fixed top-20 end-4 sm:end-6 z-50 transition-all duration-500 ease-out transform ${showSuccess ? 'translate-y-0 opacity-100' : '-translate-y-4 opacity-0 pointer-events-none'}`}>
           <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex items-center gap-3 shadow-lg max-w-sm">
             <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-            <p className="text-emerald-800 text-sm font-medium">Your profile information was updated successfully!</p>
+            <p className="text-emerald-800 text-sm font-medium">{t("provider.edit_profile_success")}</p>
           </div>
         </div>
 
         <div className="w-full mb-6 md:mb-8">
-          <h1 className="text-2xl font-bold text-slate-900">Edit Your Profile</h1>
-          <p className="text-slate-500 text-sm mt-0.5">Update your business details and location.</p>
+          <h1 className="text-2xl font-bold text-slate-900">{t("provider.edit_profile_title")}</h1>
+          <p className="text-slate-500 text-sm mt-0.5">{t("provider.edit_profile_subtitle")}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="w-full space-y-6">
@@ -192,131 +195,122 @@ export default function EditProvider() {
           <div className="bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
             <div className="flex items-center gap-2 mb-2 pb-4 border-b border-slate-100">
               <span className="w-6 h-6 rounded-md bg-blue-50 text-blue-600 text-xs font-bold flex items-center justify-center">1</span>
-              <h2 className="font-bold text-slate-900 text-base md:text-lg">Your Business Info</h2>
+              <h2 className="font-bold text-slate-900 text-base md:text-lg">{t("provider.business_info")}</h2>
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wide">Profile Image</label>
+              <label className="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wide">{t("settings.profile_image")}</label>
               <div className="flex items-center gap-4">
                 <div className="w-16 h-16 rounded-full border border-slate-200 overflow-hidden bg-slate-50 shrink-0">
                   <img 
                     src={formData.avatarUrl || "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=256&h=256"} 
-                    alt="Avatar Preview" 
+                    alt={t("alt.avatar_preview")} 
                     className="w-full h-full object-cover"
                   />
                 </div>
                 <div className="flex-1">
-                  <input
-                    type="file"
+                  <FileInput
                     accept="image/*"
                     onChange={handleImageUpload}
                     disabled={loading}
-                    className="block w-full text-sm text-slate-500
-                      file:mr-4 file:py-2 file:px-4
-                      file:rounded-full file:border-0
-                      file:text-sm file:font-semibold
-                      file:bg-blue-50 file:text-blue-700
-                      hover:file:bg-blue-100 disabled:opacity-50 cursor-pointer"
                   />
-                  <p className="text-xs text-slate-400 mt-1">PNG, JPG up to 5MB</p>
+                  <p className="text-xs text-slate-400 mt-1">{t("provider_edit.image_hint")}</p>
                 </div>
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wide">Cover Banner Image</label>
+              <label className="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wide">{t("provider.cover_banner")}</label>
               <div className="flex flex-col gap-3">
                 <div className="w-full h-32 rounded-xl border border-slate-200 overflow-hidden bg-slate-800 shrink-0 relative">
                   <img 
                     src={formData.bannerUrl || "https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&q=80&w=1200&h=400"} 
-                    alt="Banner Preview" 
+                    alt={t("alt.banner_preview")} 
                     className="w-full h-full object-cover opacity-70"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-900/50 to-transparent"></div>
                 </div>
                 <div>
-                  <input
-                    type="file"
+                  <FileInput
                     accept="image/*"
                     onChange={handleBannerUpload}
                     disabled={loading}
-                    className="block w-full text-sm text-slate-500
-                      file:mr-4 file:py-2 file:px-4
-                      file:rounded-full file:border-0
-                      file:text-sm file:font-semibold
-                      file:bg-blue-50 file:text-blue-700
-                      hover:file:bg-blue-100 disabled:opacity-50 cursor-pointer"
                   />
-                  <p className="text-xs text-slate-400 mt-1">Recommended: Wide image (e.g., 1200x400), PNG/JPG up to 5MB</p>
+                  <p className="text-xs text-slate-400 mt-1">{t("provider.banner_hint")}</p>
                 </div>
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wide">Business / Provider Name *</label>
+              <label className="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wide">{t("provider.business_name")}</label>
               <input
                 required
                 type="text"
                 value={formData.name}
                 onChange={e => setFormData({ ...formData, name: e.target.value })}
                 className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all bg-slate-50 focus:bg-white text-sm"
-                placeholder="e.g. Express Locksmith Casablanca"
+                placeholder={t("placeholder.business_name")}
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wide">Full Address *</label>
+              <label className="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wide">{t("provider.full_address")}</label>
               <input
                 required
                 type="text"
                 value={formData.address}
                 onChange={e => setFormData({ ...formData, address: e.target.value })}
                 className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all bg-slate-50 focus:bg-white text-sm"
-                placeholder="Street, Neighborhood, City"
+                placeholder={t("placeholder.address")}
               />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wide">Phone Number *</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wide">{t("profile.phone_number")} *</label>
                 <input
                   required
                   type="tel"
                   value={formData.phone}
                   onChange={e => setFormData({ ...formData, phone: e.target.value })}
                   className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all bg-slate-50 focus:bg-white text-sm"
-                  placeholder="e.g. +212 6 12 34 56 78"
+                  placeholder={t("placeholder.phone")}
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wide">Email Address (Optional)</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wide">{t("provider.email_optional")}</label>
                 <input
                   type="email"
                   value={formData.email}
                   onChange={e => setFormData({ ...formData, email: e.target.value })}
                   className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all bg-slate-50 focus:bg-white text-sm"
-                  placeholder="e.g. contact@domain.com"
+                  placeholder={t("placeholder.contact_email")}
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wide">About Your Services *</label>
+              <label className="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wide">{t("provider.about_services")}</label>
               <textarea
                 required
                 rows={3}
                 value={formData.about}
                 onChange={e => setFormData({ ...formData, about: e.target.value })}
                 className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all resize-none bg-slate-50 focus:bg-white text-sm"
-                placeholder="Describe your experience, specializations, and availability..."
+                placeholder={t("placeholder.about")}
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wide">Service Types (Skills) *</label>
+              <label className="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wide">{t("provider.service_types")}</label>
               <div className="flex flex-wrap gap-3">
-                {['Emergency', 'Commercial', 'Auto', 'Residential'].map(type => {
+                {[
+                  { value: 'Emergency', label: t("search.emergency") },
+                  { value: 'Commercial', label: t("search.commercial") },
+                  { value: 'Auto', label: t("search.auto") },
+                  { value: 'Residential', label: t("search.residential") },
+                ].map(({ value: type, label }) => {
                   const currentSkills = formData.skills ? formData.skills.split(',').map(s => s.trim()).filter(Boolean) : [];
                   const isSelected = currentSkills.includes(type);
                   return (
@@ -336,7 +330,7 @@ export default function EditProvider() {
                           : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
                       }`}
                     >
-                      {type}
+                      {label}
                     </button>
                   );
                 })}
@@ -345,24 +339,24 @@ export default function EditProvider() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wide">Certifications (Optional)</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wide">{t("provider.certifications_optional")}</label>
                 <textarea
                   rows={2}
                   value={formData.certifications}
                   onChange={e => setFormData({ ...formData, certifications: e.target.value })}
                   className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all resize-none bg-slate-50 focus:bg-white text-sm"
-                  placeholder="e.g. ALOA Certified&#10;Registered NY Locksmith"
+                  placeholder={t("placeholder.certs")}
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wide">Business Hours (Optional)</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1 uppercase tracking-wide">{t("provider.business_hours_optional")}</label>
                 <textarea
                   rows={2}
                   value={formData.businessHours}
                   onChange={e => setFormData({ ...formData, businessHours: e.target.value })}
                   className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all resize-none bg-slate-50 focus:bg-white text-sm"
-                  placeholder="e.g. Mon-Fri: 8am-8pm&#10;Sat-Sun: Emergency Only"
+                  placeholder={t("placeholder.hours")}
                 />
               </div>
             </div>
@@ -372,7 +366,7 @@ export default function EditProvider() {
           <div className="bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-slate-200">
             <div className="flex items-center gap-2 mb-4 pb-4 border-b border-slate-100">
               <span className="w-6 h-6 rounded-md bg-blue-50 text-blue-600 text-xs font-bold flex items-center justify-center">2</span>
-              <h2 className="font-bold text-slate-900 text-base md:text-lg">Pin Your Location</h2>
+              <h2 className="font-bold text-slate-900 text-base md:text-lg">{t("provider.pin_location")}</h2>
             </div>
 
             <div className="rounded-xl overflow-hidden border border-slate-200">
@@ -382,7 +376,7 @@ export default function EditProvider() {
             {formData.lat && (
               <div className="mt-4 flex items-center gap-2 text-green-700 text-sm font-bold bg-green-50 p-3 rounded-xl border border-green-100">
                 <CheckCircle2 className="w-5 h-5 text-green-500" />
-                Location pinned successfully!
+                {t("provider.location_success")}
               </div>
             )}
           </div>
@@ -392,7 +386,7 @@ export default function EditProvider() {
               href="/dashboard"
               className="px-6 py-3 rounded-xl border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 hover:text-slate-900 transition-colors text-sm"
             >
-              Cancel
+              {t("provider.cancel")}
             </Link>
             <button
               type="submit"
@@ -400,7 +394,7 @@ export default function EditProvider() {
               className="flex items-center gap-2 px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold transition-all disabled:opacity-50 text-sm shadow-sm"
             >
               {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
-              Save Changes
+              {t("settings.save")}
             </button>
           </div>
         </form>

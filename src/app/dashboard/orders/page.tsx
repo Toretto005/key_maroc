@@ -8,6 +8,7 @@ import { MessageSquare, ChevronDown, ArrowLeft, Loader2, Search, Filter, Clipboa
 import NotificationBell from '@/components/NotificationBell';
 import UserDropdown from '@/components/UserDropdown';
 import BackButton from '@/components/BackButton';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 type ServiceRequest = {
   id: number;
@@ -26,6 +27,7 @@ export default function OrdersPage() {
   const [filter, setFilter] = useState('ALL');
   const router = useRouter();
   const supabase = createClient();
+  const { t } = useLanguage();
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -99,10 +101,10 @@ export default function OrdersPage() {
       {/* Top Header */}
       <header className="h-16 bg-white border-b border-slate-200 px-4 md:px-6 flex items-center sticky top-0 z-40">
         <div className="text-slate-800 font-medium flex items-center gap-2 text-sm truncate max-w-[150px] sm:max-w-none">
-          <Link href="/dashboard" className="text-slate-400 hover:text-slate-600 transition-colors mr-1 sm:mr-2 shrink-0">
+          <Link href="/dashboard" className="text-slate-400 hover:text-slate-600 transition-colors me-1 sm:me-2 shrink-0">
             <ArrowLeft className="w-4 h-4" />
           </Link>
-          {profile?.name || 'Loading...'} <span className="hidden sm:inline text-slate-400">| Locksmith Pro - Orders</span>
+          {profile?.name || t("dashboard.loading")} <span className="hidden sm:inline text-slate-400">| {t("dashboard.title_orders")}</span>
         </div>
       </header>
 
@@ -111,8 +113,8 @@ export default function OrdersPage() {
           <div className="mb-2">
             <BackButton />
           </div>
-          <h1 className="text-2xl font-bold text-slate-900">Manage Orders</h1>
-          <p className="text-slate-600 text-sm mt-1">View and process all client service requests.</p>
+          <h1 className="text-2xl font-bold text-slate-900">{t("provider.orders")}</h1>
+          <p className="text-slate-600 text-sm mt-1">{t("provider.orders_subtitle")}</p>
         </div>
 
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
@@ -124,7 +126,7 @@ export default function OrdersPage() {
             <div className="flex items-center gap-2 overflow-x-auto pb-1 md:pb-0 hide-scrollbar">
               {['ALL', 'ACTIVE', 'PENDING', 'COMPLETED'].map((tab) => (
                 <button
-                  key={tab}
+                  key={t("orders.tab." + tab.toLowerCase())}
                   onClick={() => setFilter(tab)}
                   className={`px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap transition-colors ${
                     filter === tab 
@@ -132,7 +134,7 @@ export default function OrdersPage() {
                       : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                   }`}
                 >
-                  {tab === 'ALL' ? 'All Orders' : tab.charAt(0) + tab.slice(1).toLowerCase()}
+                  {tab === 'ALL' ? t("provider.all_orders") : tab === 'ACTIVE' ? t("provider.active") : t(`orders.${tab.toLowerCase()}`)}
                 </button>
               ))}
             </div>
@@ -140,11 +142,11 @@ export default function OrdersPage() {
             {/* Search/Filter */}
             <div className="flex items-center gap-3">
               <div className="relative">
-                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <Search className="w-4 h-4 text-slate-400 absolute start-3 top-1/2 -translate-y-1/2" />
                 <input 
                   type="text" 
-                  placeholder="Search orders..." 
-                  className="pl-9 pr-4 py-2 rounded-lg border border-slate-300 text-sm w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow bg-slate-50 focus:bg-white"
+                  placeholder={t("placeholder.search_orders")} 
+                  className="ps-9 pe-4 py-2 rounded-lg border border-slate-300 text-sm w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow bg-slate-50 focus:bg-white"
                 />
               </div>
               <button className="p-2 border border-slate-300 rounded-lg text-slate-600 hover:bg-slate-50 transition-colors">
@@ -155,15 +157,15 @@ export default function OrdersPage() {
 
           {/* Data Table */}
           <div className="overflow-x-auto">
-            <table className="w-full text-sm text-left">
+            <table className="w-full text-sm text-start">
               <thead className="text-xs text-slate-900 font-bold bg-slate-50 border-b border-slate-100">
                 <tr>
-                  <th className="px-6 py-4">Order ID</th>
-                  <th className="px-6 py-4">Customer</th>
-                  <th className="px-6 py-4">Service</th>
-                  <th className="px-6 py-4">Date & Time</th>
-                  <th className="px-6 py-4">Status</th>
-                  <th className="px-6 py-4">Action</th>
+                  <th className="px-6 py-4 text-start">{t("provider.order_id")}</th>
+                  <th className="px-6 py-4 text-start">{t("provider.customer")}</th>
+                  <th className="px-6 py-4 text-start">{t("provider.service_type")}</th>
+                  <th className="px-6 py-4 text-start">{t("provider.date_time")}</th>
+                  <th className="px-6 py-4 text-start">{t("provider.status")}</th>
+                  <th className="px-6 py-4 text-start">{t("provider.action")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -195,12 +197,12 @@ export default function OrdersPage() {
                         <div className="text-xs text-slate-400">{new Date(req.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                       </td>
                       <td className="px-6 py-4">
-                        <span className={`px-2.5 py-1 text-[11px] font-bold rounded-full text-white inline-flex items-center
-                          ${req.status === 'PENDING' ? 'bg-[#2a6892]' : 
+                        <span className={`px-2.5 py-1 text-[11px] font-bold rounded-full text-white inline-flex items-center whitespace-nowrap
+                          ${req.status === 'PENDING' ? 'bg-[#2a6892]' :
                             req.status === 'COMPLETED' ? 'bg-emerald-600' :
                             'bg-[#1b85ce]'}
                         `}>
-                          {req.status === 'PENDING' ? 'Pending' : req.status === 'ACCEPTED' ? 'In Progress' : req.status === 'COMPLETED' ? 'Completed' : req.status}
+                          {req.status === 'PENDING' ? t("orders.status.pending") : req.status === "ACCEPTED" ? t("orders.status.in_progress") : req.status === "COMPLETED" ? t("orders.status.completed") : req.status}
                         </span>
                       </td>
                       <td className="px-6 py-4">
@@ -211,13 +213,13 @@ export default function OrdersPage() {
                                 onClick={() => handleUpdateStatus(req.id, 'ACCEPTED')}
                                 className="px-3 py-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors shadow-sm"
                               >
-                                Accept
+                                {t("orders.accept")}
                               </button>
-                              <button 
+                              <button
                                 onClick={() => handleUpdateStatus(req.id, 'REJECTED')}
                                 className="px-3 py-1.5 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"
                               >
-                                Decline
+                                {t("orders.decline")}
                               </button>
                             </>
                           ) : req.status === 'ACCEPTED' ? (
@@ -225,12 +227,12 @@ export default function OrdersPage() {
                               onClick={() => handleUpdateStatus(req.id, 'COMPLETED')}
                               className="px-3 py-1.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-colors shadow-sm"
                             >
-                              Mark Complete
+                              {t("orders.mark_complete")}
                             </button>
                           ) : (
-                            <button className="text-sm font-bold text-blue-600 hover:text-blue-800 transition-colors">
-                              View Details
-                            </button>
+                            <Link href={`/dashboard/orders/${req.id}`} className="text-sm font-bold text-blue-600 hover:text-blue-800 transition-colors">
+                              {t("orders.view_details")}
+                            </Link>
                           )}
                         </div>
                       </td>
@@ -242,9 +244,9 @@ export default function OrdersPage() {
                       <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-slate-100 mb-4">
                         <ClipboardList className="w-6 h-6 text-slate-400" />
                       </div>
-                      <h3 className="text-sm font-bold text-slate-900 mb-1">No orders found</h3>
+                      <h3 className="text-sm font-bold text-slate-900 mb-1">{t("dashboard.no_orders_found")}</h3>
                       <p className="text-sm text-slate-500">
-                        {filter === 'ALL' ? "You don't have any service requests yet." : `No orders matching filter: ${filter}`}
+                        {filter === 'ALL' ? t("orders.no_orders_desc") : `${t("orders.no_orders_filter_prefix")} ${filter}`}
                       </p>
                     </td>
                   </tr>
@@ -257,11 +259,11 @@ export default function OrdersPage() {
           {filteredRequests.length > 0 && (
             <div className="px-6 py-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
               <span className="text-sm text-slate-500">
-                Showing <span className="font-bold text-slate-900">{filteredRequests.length}</span> results
+                {t("dashboard.showing")} <span className="font-bold text-slate-900">{filteredRequests.length}</span> {t("dashboard.results")}
               </span>
               <div className="flex items-center gap-1">
-                <button className="px-3 py-1 border border-slate-300 rounded-md text-sm text-slate-600 hover:bg-slate-100 disabled:opacity-50" disabled>Prev</button>
-                <button className="px-3 py-1 border border-slate-300 rounded-md text-sm text-slate-600 hover:bg-slate-100 disabled:opacity-50" disabled>Next</button>
+                <button className="px-3 py-1 border border-slate-300 rounded-md text-sm text-slate-600 hover:bg-slate-100 disabled:opacity-50" disabled>{t("provider.prev")}</button>
+                <button className="px-3 py-1 border border-slate-300 rounded-md text-sm text-slate-600 hover:bg-slate-100 disabled:opacity-50" disabled>{t("provider.next")}</button>
               </div>
             </div>
           )}

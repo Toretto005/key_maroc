@@ -51,6 +51,7 @@ model ServiceRequest {
   serviceId   Int?
   clientName  String
   clientPhone String
+  clientAvatar String?
   status      String   @default("PENDING")
   notes       String?
   createdAt   DateTime @default(now())

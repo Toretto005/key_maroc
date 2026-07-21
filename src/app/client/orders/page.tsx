@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client';
 import { Loader2, CheckCircle2, User, Phone, ArrowLeft, Bell, ChevronDown, Clock, History, XCircle } from 'lucide-react';
 import Link from 'next/link';
 import BackButton from '@/components/BackButton';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 type ServiceRequest = {
   id: number;
@@ -22,6 +23,7 @@ export default function ClientOrders() {
   const router = useRouter();
   const supabase = createClient();
   const [fullName, setFullName] = useState('');
+  const { t } = useLanguage();
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -60,10 +62,10 @@ export default function ClientOrders() {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'PENDING': return <Clock className="w-3.5 h-3.5 mr-1" />;
-      case 'ACCEPTED': return <CheckCircle2 className="w-3.5 h-3.5 mr-1" />;
-      case 'COMPLETED': return <CheckCircle2 className="w-3.5 h-3.5 mr-1" />;
-      case 'REJECTED': return <XCircle className="w-3.5 h-3.5 mr-1" />;
+      case 'PENDING': return <Clock className="w-3.5 h-3.5 me-1" />;
+      case 'ACCEPTED': return <CheckCircle2 className="w-3.5 h-3.5 me-1" />;
+      case 'COMPLETED': return <CheckCircle2 className="w-3.5 h-3.5 me-1" />;
+      case 'REJECTED': return <XCircle className="w-3.5 h-3.5 me-1" />;
       default: return null;
     }
   };
@@ -91,58 +93,70 @@ export default function ClientOrders() {
               <History className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-slate-900">Your Orders</h2>
-              <p className="text-slate-500 text-sm">Track your service requests and their status.</p>
+              <h2 className="text-xl font-bold text-slate-900">{t("orders.title")}</h2>
+              <p className="text-slate-500 text-sm">{t("orders.subtitle")}</p>
             </div>
           </div>
 
           {requestsLoading ? (
             <div className="flex justify-center items-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin text-slate-300" />
+              <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
             </div>
-          ) : requests.length === 0 ? (
-            <div className="text-center py-12 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-              <History className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-              <p className="text-slate-500 font-medium">You haven't requested any services yet.</p>
-              <Link href="/" className="text-blue-600 hover:text-blue-700 text-sm mt-2 inline-block font-semibold">
-                Browse Services
-              </Link>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {requests.map(req => (
-                <div key={req.id} className="p-5 rounded-xl border border-slate-100 bg-slate-50 hover:bg-white transition-colors hover:shadow-sm group">
-                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+          ) : requests.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {requests.map((req) => (
+                <div key={req.id} className="bg-white border border-slate-200 rounded-2xl p-6 hover:shadow-lg transition-all flex flex-col h-full group">
+                  <div className="flex justify-between items-start mb-6">
+                    <span className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold border ${getStatusColor(req.status)}`}>
+                      {getStatusIcon(req.status)}
+                      {req.status === 'PENDING' ? t("orders.pending") : 
+                       req.status === 'ACCEPTED' ? t("orders.accepted") : 
+                       req.status === 'COMPLETED' ? t("orders.completed") : 
+                       t("orders.rejected")}
+                    </span>
+                    <span className="text-xs font-medium text-slate-400 bg-slate-50 px-2 py-1 rounded-md">
+                      #{req.id.toString().padStart(4, '0')}
+                    </span>
+                  </div>
+                  
+                  <div className="space-y-4 flex-1">
                     <div>
-                      <h3 className="font-bold text-slate-900 text-lg">
-                        {req.Service?.name || 'General Locksmith Service'}
-                      </h3>
-                      <div className="flex flex-col gap-1 mt-2 text-sm text-slate-600">
-                        <span className="flex items-center gap-1.5">
-                          <User className="w-4 h-4 text-slate-400" />
-                          <span className="font-medium text-slate-700">{req.Provider?.name || 'Unknown Provider'}</span>
-                        </span>
-                        <span className="flex items-center gap-1.5">
-                          <Phone className="w-4 h-4 text-slate-400" />
-                          <a href={`tel:${req.Provider?.phone}`} className="hover:text-blue-600 transition-colors">
-                            {req.Provider?.phone || 'No phone'}
-                          </a>
-                        </span>
-                      </div>
+                      <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{t("orders.service")}</p>
+                      <p className="font-semibold text-slate-900">{req.Service?.name || 'General Request'}</p>
+                    </div>
+                    
+                    <div>
+                      <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{t("orders.provider")}</p>
+                      <p className="font-medium text-slate-700 flex items-center gap-2">
+                        <User className="w-4 h-4 text-slate-400" />
+                        {req.Provider?.name || 'Not assigned yet'}
+                      </p>
                     </div>
 
-                    <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between gap-2 border-t sm:border-t-0 border-slate-200 pt-3 sm:pt-0">
-                      <span className={`inline-flex items-center px-2.5 py-1 text-xs font-bold rounded-lg border uppercase tracking-wider ${getStatusColor(req.status)}`}>
-                        {getStatusIcon(req.status)}
-                        {req.status}
-                      </span>
-                      <span className="text-xs text-slate-400 font-medium whitespace-nowrap">
-                        {new Date(req.createdAt).toLocaleDateString()}
-                      </span>
+                    <div>
+                      <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{t("orders.date")}</p>
+                      <p className="text-sm font-medium text-slate-600">
+                        {new Date(req.createdAt).toLocaleDateString(undefined, { 
+                          year: 'numeric', month: 'long', day: 'numeric',
+                          hour: '2-digit', minute: '2-digit'
+                        })}
+                      </p>
                     </div>
                   </div>
                 </div>
               ))}
+            </div>
+          ) : (
+            <div className="text-center py-16 bg-slate-50 rounded-xl border-2 border-dashed border-slate-200">
+              <History className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+              <p className="text-lg font-semibold text-slate-700 mb-2">{t("orders.no_orders")}</p>
+              <p className="text-slate-500 mb-6">{t("orders.no_orders_desc")}</p>
+              <Link 
+                href="/search"
+                className="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all shadow-sm shadow-blue-200"
+              >
+                {t("home.search_button")}
+              </Link>
             </div>
           )}
         </div>

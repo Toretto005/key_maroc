@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client';
 import { Loader2, CheckCircle2, User, Phone, Save, Upload, Image as ImageIcon, Mail } from 'lucide-react';
 import Link from 'next/link';
 import BackButton from '@/components/BackButton';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 export default function ClientSettings() {
   const [loading, setLoading] = useState(true);
@@ -13,6 +14,7 @@ export default function ClientSettings() {
   const [success, setSuccess] = useState(false);
   const router = useRouter();
   const supabase = createClient();
+  const { t } = useLanguage();
 
   const [formData, setFormData] = useState({
     fullName: '',
@@ -63,7 +65,7 @@ export default function ClientSettings() {
       setTimeout(() => setSuccess(false), 3000);
     } catch (error: any) {
       console.error(error);
-      alert(error.message || "Failed to update profile");
+      alert(error.message || t("settings.error"));
     } finally {
       setSaving(false);
     }
@@ -88,8 +90,8 @@ export default function ClientSettings() {
             <Save className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-slate-900">Account Settings</h2>
-            <p className="text-slate-500 text-sm">Update your personal information.</p>
+            <h2 className="text-xl font-bold text-slate-900">{t("settings.title")}</h2>
+            <p className="text-slate-500 text-sm">{t("settings.subtitle")}</p>
           </div>
         </div>
 
@@ -98,9 +100,9 @@ export default function ClientSettings() {
             <div className="flex-1 max-w-md">
               <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wide">Full Name</label>
+              <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wide">{t("auth.full_name")}</label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <div className="absolute inset-y-0 start-0 ps-3 flex items-center pointer-events-none">
                   <User className="w-5 h-5 text-slate-400" />
                 </div>
                 <input
@@ -108,16 +110,16 @@ export default function ClientSettings() {
                   type="text"
                   value={formData.fullName}
                   onChange={e => setFormData({ ...formData, fullName: e.target.value })}
-                  className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                  placeholder="John Doe"
+                  className="w-full ps-10 pe-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                  placeholder={t("placeholder.john_doe")}
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wide">Email Address</label>
+              <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wide">{t("auth.email")}</label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <div className="absolute inset-y-0 start-0 ps-3 flex items-center pointer-events-none">
                   <Mail className="w-5 h-5 text-slate-400" />
                 </div>
                 <input
@@ -125,16 +127,16 @@ export default function ClientSettings() {
                   type="email"
                   value={formData.email}
                   onChange={e => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                  placeholder="john@example.com"
+                  className="w-full ps-10 pe-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                  placeholder={t("placeholder.john_email")}
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wide">Phone Number</label>
+              <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wide">{t("profile.phone_number")}</label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <div className="absolute inset-y-0 start-0 ps-3 flex items-center pointer-events-none">
                   <Phone className="w-5 h-5 text-slate-400" />
                 </div>
                 <input
@@ -142,7 +144,7 @@ export default function ClientSettings() {
                   type="tel"
                   value={formData.phone}
                   onChange={e => setFormData({ ...formData, phone: e.target.value })}
-                  className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                  className="w-full ps-10 pe-4 py-3 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                   placeholder="+212 6 00 00 00 00"
                 />
               </div>
@@ -153,24 +155,24 @@ export default function ClientSettings() {
               disabled={saving}
               className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold transition-all disabled:opacity-70 shadow-sm mt-4"
             >
-              {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Save Changes'}
+              {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : t("settings.save")}
             </button>
 
               {success && (
                 <div className="flex items-center justify-center gap-2 text-green-600 bg-green-50 py-3 rounded-xl text-sm font-bold border border-green-200 mt-4">
                   <CheckCircle2 className="w-5 h-5 text-green-500" />
-                  Settings updated successfully!
+                  {t("settings.success")}
                 </div>
               )}
             </form>
           </div>
 
           <div className="w-full sm:w-64 shrink-0">
-            <label className="block text-xs font-bold text-slate-700 mb-3 uppercase tracking-wide">Profile Image</label>
+            <label className="block text-xs font-bold text-slate-700 mb-3 uppercase tracking-wide">{t("settings.profile_image")}</label>
             <div className="flex flex-col items-center">
               <div className="w-32 h-32 rounded-full overflow-hidden bg-slate-100 border-4 border-white shadow-sm mb-4 relative group">
                 {formData.avatarUrl ? (
-                  <img src={formData.avatarUrl} alt="Profile" className="w-full h-full object-cover" />
+                  <img src={formData.avatarUrl} alt={t("alt.profile")} className="w-full h-full object-cover" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-slate-400">
                     <User className="w-12 h-12" />
@@ -209,7 +211,7 @@ export default function ClientSettings() {
 
                         setFormData({ ...formData, avatarUrl: data.publicUrl });
                       } catch (err: any) {
-                        alert("Error uploading image: " + err.message);
+                        alert(t("client_settings.error_image") + err.message);
                       } finally {
                         setUploadingImage(false);
                       }
@@ -217,7 +219,7 @@ export default function ClientSettings() {
                   />
                 </label>
               </div>
-              <p className="text-xs text-slate-500 text-center">Click the image to upload a new avatar. Recommended size: 256x256px.</p>
+              <p className="text-xs text-slate-500 text-center">{t("settings.upload_hint")}</p>
             </div>
             </div>
           </div>

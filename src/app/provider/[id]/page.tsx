@@ -6,9 +6,11 @@ import ProviderMapWrapper from '@/components/ProviderMapWrapper';
 import ServicesSection from '@/components/ServicesSection';
 import RequestQuoteModal from '@/components/RequestQuoteModal';
 import BackButton from '@/components/BackButton';
+import { getDictionary } from '@/lib/i18n/server';
 
 export default async function ProviderProfile({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  const { t } = await getDictionary();
   const provider = await prisma.provider.findUnique({
     where: { id: parseInt(id) },
     include: {
@@ -58,7 +60,7 @@ export default async function ProviderProfile({ params }: { params: Promise<{ id
                     <div className="flex items-center gap-1">
                       <Star className="w-4 h-4 text-amber-500 fill-current" />
                       <span className="font-medium text-slate-900">{provider.rating}</span>
-                      <span>({provider.reviews} reviews)</span>
+                      <span>({provider.reviews} {t("provider.reviews")})</span>
                     </div>
                     <span className="hidden md:inline text-slate-300">|</span>
                     <span className="flex items-center gap-1">
@@ -79,7 +81,7 @@ export default async function ProviderProfile({ params }: { params: Promise<{ id
           <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
             <div className="p-4 border-b border-slate-100 flex items-center gap-2">
               <MapPin className="w-5 h-5 text-blue-600" />
-              <h2 className="font-semibold text-slate-900">Location</h2>
+              <h2 className="font-semibold text-slate-900">{t("provider_profile.location")}</h2>
             </div>
             <div style={{ height: '260px' }}>
               <ProviderMapWrapper
@@ -99,10 +101,10 @@ export default async function ProviderProfile({ params }: { params: Promise<{ id
             <div className="p-5 border-b border-slate-100 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <MessageSquare className="w-5 h-5 text-blue-600" />
-                <h2 className="font-semibold text-slate-900 text-lg">Client Reviews</h2>
+                <h2 className="font-semibold text-slate-900 text-lg">{t("provider_profile.client_reviews")}</h2>
               </div>
               <div className="text-sm font-bold text-slate-900 bg-slate-100 px-3 py-1 rounded-full">
-                <Star className="w-4 h-4 text-amber-500 inline mr-1 pb-0.5" />
+                <Star className="w-4 h-4 text-amber-500 inline me-1 pb-0.5" />
                 {provider.rating} <span className="text-slate-500 font-normal">({provider.clientReviews.length})</span>
               </div>
             </div>
@@ -114,7 +116,7 @@ export default async function ProviderProfile({ params }: { params: Promise<{ id
                     <div key={review.id} className="border-b border-slate-100 pb-4 last:border-0 last:pb-0">
                       <div className="flex justify-between items-start mb-2">
                         <div>
-                          <div className="font-bold text-slate-900">{review.clientPhone.replace(/(\d{3})(\d{3})(\d{4})/, '$1-***-$3')}</div>
+                          <div dir="ltr" className="font-bold text-slate-900 text-end">{review.clientPhone.replace(/(\d{3})(\d{3})(\d{4})/, '$1-***-$3')}</div>
                           <div className="text-xs text-slate-500">
                             {new Date(review.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
                           </div>
@@ -134,7 +136,7 @@ export default async function ProviderProfile({ params }: { params: Promise<{ id
               ) : (
                 <div className="text-center py-8 text-slate-500">
                   <MessageSquare className="w-10 h-10 text-slate-200 mx-auto mb-3" />
-                  <p>No reviews yet for this provider.</p>
+                  <p>{t("provider_profile.no_reviews")}</p>
                 </div>
               )}
             </div>
@@ -144,15 +146,15 @@ export default async function ProviderProfile({ params }: { params: Promise<{ id
         {/* Right Column - CTA & Info */}
         <div className="space-y-6">
           <div className="bg-white p-6 rounded-2xl shadow-lg border border-slate-200 sticky top-24">
-            <h3 className="font-bold text-slate-900 mb-2 text-lg">Contact Provider</h3>
-            <p className="text-slate-500 text-sm mb-6">Call directly to discuss your needs and request immediate assistance.</p>
+            <h3 className="font-bold text-slate-900 mb-2 text-lg">{t("provider_profile.contact")}</h3>
+            <p className="text-slate-500 text-sm mb-6">{t("provider_profile.contact_desc")}</p>
             
             <a
               href={`tel:${provider.phone}`}
               className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-bold text-lg transition-colors shadow-md shadow-blue-200 mb-3"
             >
               <Phone className="w-5 h-5" />
-              {provider.phone || 'No number listed'}
+              {provider.phone || t("provider_profile.no_phone")}
             </a>
             
             <RequestQuoteModal providerId={provider.id} />
@@ -160,11 +162,11 @@ export default async function ProviderProfile({ params }: { params: Promise<{ id
             <div className="mt-6 space-y-3 pt-6 border-t border-slate-100">
               <div className="flex items-center gap-3 text-sm text-slate-600">
                 <Shield className="w-5 h-5 text-green-500" />
-                <span>Verified identity & credentials</span>
+                <span>{t("provider_profile.verified_badge")}</span>
               </div>
               <div className="flex items-center gap-3 text-sm text-slate-600">
                 <CreditCard className="w-5 h-5 text-slate-400" />
-                <span>Accepts Cash, Card, Mobile Pay</span>
+                <span>{t("provider_profile.payment_methods")}</span>
               </div>
             </div>
           </div>

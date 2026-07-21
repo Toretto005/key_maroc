@@ -8,12 +8,14 @@ import { Loader2, MessageSquare, ChevronDown, Star } from 'lucide-react';
 import NotificationBell from '@/components/NotificationBell';
 import UserDropdown from '@/components/UserDropdown';
 import BackButton from '@/components/BackButton';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<any>(null);
   const router = useRouter();
   const supabase = createClient();
+  const { t } = useLanguage();
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -55,7 +57,7 @@ export default function ProfilePage() {
       {/* Top Header */}
       <header className="h-16 bg-white border-b border-slate-200 px-4 md:px-6 flex items-center sticky top-0 z-40">
         <div className="text-slate-800 font-medium text-sm truncate max-w-[150px] sm:max-w-none">
-          {profile?.name || 'Loading...'} <span className="hidden sm:inline text-slate-400">| Locksmith Pro - Profile</span>
+          {profile?.name || t("dashboard.loading")} <span className="hidden sm:inline text-slate-400">| {t("dashboard.title_profile")}</span>
         </div>
       </header>
 
@@ -67,8 +69,8 @@ export default function ProfilePage() {
           <div className="mb-2">
             <BackButton />
           </div>
-          <h1 className="text-2xl font-bold text-slate-900">Profile: {profile?.name || 'Loading...'}</h1>
-          <p className="text-slate-600 text-sm">{profile?.name || 'Locksmith Services'} | {profile?.address?.split(',').pop() || 'Loading...'}</p>
+          <h1 className="text-2xl font-bold text-slate-900">{t("provider.profile_title")}: {profile?.name || t("dashboard.loading")}</h1>
+          <p className="text-slate-600 text-sm">{profile?.name || t("provider.locksmith_services")} | {profile?.address?.split(',').pop() || t("dashboard.loading")}</p>
         </div>
 
         {/* Hero Banner */}
@@ -76,25 +78,25 @@ export default function ProfilePage() {
           <div className="rounded-2xl overflow-hidden bg-slate-800 h-44 shadow-sm border border-slate-200 relative">
             <img 
               src={profile?.bannerUrl || "https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&q=80&w=1200&h=400"} 
-              alt="Cover" 
+              alt={t("alt.cover")} 
               className="w-full h-full object-cover opacity-70"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-slate-900/90 to-transparent"></div>
             
-            <div className="absolute bottom-4 md:bottom-6 left-28 md:left-36 z-10 pr-4">
+            <div className="absolute bottom-4 md:bottom-6 start-28 md:start-36 z-10 pe-4">
               <h2 className="text-2xl md:text-3xl font-bold text-white drop-shadow-md tracking-tight">{profile?.name || 'Alex'}</h2>
               <div className="flex items-center gap-1 text-amber-400 text-sm font-medium mt-0.5">
                 <Star className="w-4 h-4 fill-current shrink-0" />
-                <span className="text-white drop-shadow-md">{profile?.rating ? profile.rating.toFixed(1) : '5.0'} <span className="text-slate-200 font-normal">| {profile?.reviews || '0'} reviews</span></span>
+                <span className="text-white drop-shadow-md">{profile?.rating ? profile.rating.toFixed(1) : '5.0'} <span className="text-slate-200 font-normal">| {profile?.reviews || '0'} {t("provider.reviews")}</span></span>
               </div>
             </div>
           </div>
           
-          <div className="absolute bottom-0 left-4 md:left-8 transform translate-y-1/2 z-20">
+          <div className="absolute bottom-0 start-4 md:start-8 transform translate-y-1/2 z-20">
             <div className="w-20 h-20 md:w-24 md:h-24 rounded-full border-4 border-[#f1f5f9] bg-white overflow-hidden shadow-md shrink-0">
               <img 
                 src={profile?.avatarUrl || "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&q=80&w=256&h=256"} 
-                alt="Profile" 
+                alt={t("alt.profile")} 
                 className="w-full h-full object-cover"
               />
             </div>
@@ -104,22 +106,22 @@ export default function ProfilePage() {
         {/* Profile Content Container */}
         <div className="flex flex-col border border-slate-200 rounded-2xl overflow-hidden shadow-sm bg-white w-full">
           <div className="h-14 border-b border-slate-200 flex items-center justify-center bg-white">
-             <h3 className="text-[15px] font-semibold text-slate-800">Profile Information</h3>
+             <h3 className="text-[15px] font-semibold text-slate-800">{t("provider.profile_information")}</h3>
           </div>
           
           <div className="p-4 md:p-8 space-y-8 bg-white">
             {/* Top row: About and Skills */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <div>
-                <h4 className="text-sm font-bold text-slate-900 mb-2">About {profile?.name?.split(' ')[0] || ''}</h4>
+                <h4 className="text-sm font-bold text-slate-900 mb-2">{t("provider.about")} {profile?.name?.split(' ')[0] || ''}</h4>
                 <p className="text-[13px] text-slate-600 leading-relaxed whitespace-pre-wrap">
-                  {profile?.about || 'No information provided yet.'}
+                  {profile?.about || t("provider.no_info")}
                 </p>
               </div>
 
               {profile?.skills && (
                 <div>
-                  <h4 className="text-sm font-bold text-slate-900 mb-2">Skills</h4>
+                  <h4 className="text-sm font-bold text-slate-900 mb-2">{t("provider.skills")}</h4>
                   <p className="text-[13px] text-slate-600 leading-relaxed">
                     {profile.skills}
                   </p>
@@ -132,21 +134,21 @@ export default function ProfilePage() {
             {/* Bottom row: Details */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
               <div>
-                <h4 className="text-sm font-bold text-slate-900 mb-2">Contact Info</h4>
+                <h4 className="text-sm font-bold text-slate-900 mb-2">{t("provider.contact_info")}</h4>
                 <div className="text-[13px] text-slate-600 space-y-1">
-                  <p>Phone: {profile?.phone || 'Not provided'}</p>
-                  {profile?.email && <p>Email: {profile.email}</p>}
+                  <p>{t("provider.phone")} {profile?.phone || t("profile.not_provided")}</p>
+                  {profile?.email && <p>{t("provider.email")} {profile.email}</p>}
                 </div>
               </div>
               
               <div>
-                <h4 className="text-sm font-bold text-slate-900 mb-2">Location</h4>
-                <p className="text-[13px] text-slate-600">{profile?.address || 'Not provided'}</p>
+                <h4 className="text-sm font-bold text-slate-900 mb-2">{t("provider.location")}</h4>
+                <p className="text-[13px] text-slate-600">{profile?.address || t("profile.not_provided")}</p>
               </div>
 
               {profile?.businessHours && (
                 <div>
-                  <h4 className="text-sm font-bold text-slate-900 mb-2">Hours</h4>
+                  <h4 className="text-sm font-bold text-slate-900 mb-2">{t("provider.hours")}</h4>
                   <div className="text-[13px] text-slate-600 space-y-0.5 whitespace-pre-wrap">
                     {profile.businessHours}
                   </div>
@@ -155,7 +157,7 @@ export default function ProfilePage() {
 
               {profile?.certifications && (
                 <div>
-                  <h4 className="text-sm font-bold text-slate-900 mb-2">Certifications</h4>
+                  <h4 className="text-sm font-bold text-slate-900 mb-2">{t("provider.certifications")}</h4>
                   <div className="text-[13px] text-slate-600 space-y-0.5 whitespace-pre-wrap">
                     {profile.certifications}
                   </div>

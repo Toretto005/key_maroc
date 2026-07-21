@@ -8,6 +8,7 @@ import { Loader2, MessageSquare, ChevronDown, Clock, Smartphone, Settings, Star,
 import NotificationBell from '@/components/NotificationBell';
 import UserDropdown from '@/components/UserDropdown';
 import BackButton from '@/components/BackButton';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 type ServiceRequest = {
   id: number;
@@ -31,6 +32,7 @@ export default function Dashboard() {
   const [profile, setProfile] = useState<any>(null);
   const router = useRouter();
   const supabase = createClient();
+  const { t } = useLanguage();
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -103,7 +105,7 @@ export default function Dashboard() {
       {/* Top Header */}
       <header className="h-16 bg-white border-b border-slate-200 px-4 md:px-6 flex items-center sticky top-0 z-40">
         <div className="text-slate-800 font-medium text-sm truncate max-w-[150px] sm:max-w-none">
-          {profile?.name || 'Loading...'} <span className="hidden sm:inline text-slate-400">| Locksmith Pro - Dashboard</span>
+          {profile?.name || t("dashboard.loading")} <span className="hidden sm:inline text-slate-400">| {t("dashboard.title_dashboard")}</span>
         </div>
       </header>
 
@@ -116,15 +118,15 @@ export default function Dashboard() {
             <div className="mb-2">
               <BackButton />
             </div>
-            <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
-            <p className="text-slate-600 text-sm">Manage your orders and services.</p>
+            <h1 className="text-2xl font-bold text-slate-900">{t("provider.dashboard_title")}</h1>
+            <p className="text-slate-600 text-sm">{t("provider.dashboard_subtitle")}</p>
           </div>
         </div>
 
         {/* Dashboard Content Container */}
         <div className="flex flex-col border border-slate-200 rounded-2xl overflow-hidden shadow-sm bg-white">
           <div className="h-14 border-b border-slate-200 flex items-center px-4 md:px-8 bg-white">
-             <h3 className="text-[15px] font-semibold text-slate-800">Dashboard Overview</h3>
+             <h3 className="text-[15px] font-semibold text-slate-800">{t("provider.dashboard_overview")}</h3>
           </div>
           
           <div className="p-4 md:p-8 bg-[#f3f4f6] flex-1">
@@ -132,38 +134,38 @@ export default function Dashboard() {
             {/* Quick Stats */}
             <div className="flex flex-col xl:flex-row xl:items-center justify-end mb-8 gap-4">
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 sm:gap-3 text-[13px] bg-white px-4 py-3 rounded-lg border border-slate-200 shadow-sm">
-                <span className="text-slate-600 whitespace-nowrap">Active Orders: <strong className="text-slate-900 font-bold">{activeOrders}</strong></span>
+                <span className="text-slate-600 whitespace-nowrap">{t("provider.active_orders")} <strong className="text-slate-900 font-bold">{activeOrders}</strong></span>
                 <span className="text-slate-300 hidden sm:inline">|</span>
-                <span className="text-slate-600 whitespace-nowrap">Completed: <strong className="text-slate-900 font-bold">{completedOrders}</strong></span>
+                <span className="text-slate-600 whitespace-nowrap">{t("provider.completed")} <strong className="text-slate-900 font-bold">{completedOrders}</strong></span>
                 <span className="text-slate-300 hidden sm:inline">|</span>
-                <span className="text-slate-600 whitespace-nowrap">Services: <strong className="text-slate-900 font-bold">{services.length}</strong></span>
+                <span className="text-slate-600 whitespace-nowrap">{t("provider.services")} <strong className="text-slate-900 font-bold">{services.length}</strong></span>
                 <span className="text-slate-300 hidden sm:inline">|</span>
-                <span className="text-slate-600 whitespace-nowrap">Revenue: <strong className="text-slate-900 font-bold">MAD 0</strong> <span className="hidden sm:inline">(this week)</span></span>
+                <span className="text-slate-600 whitespace-nowrap">{t("provider.revenue")} <strong className="text-slate-900 font-bold">{t("provider.mad")} 0</strong> <span className="hidden sm:inline">{t("provider.this_week")}</span></span>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4 mb-4">
-               <h4 className="font-bold text-slate-900">Orders</h4>
-               <h4 className="font-bold text-slate-900">Services</h4>
+               <h4 className="font-bold text-slate-900">{t("provider.orders")}</h4>
+               <h4 className="font-bold text-slate-900">{t("nav.services")}</h4>
             </div>
 
             {/* Current Orders Table */}
             <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-8">
               <div className="px-5 py-3 border-b border-slate-100 flex justify-between items-center bg-white">
-                <h4 className="font-bold text-slate-900 text-sm">Current Orders</h4>
-                <span className="text-xs text-slate-500">5 recent</span>
+                <h4 className="font-bold text-slate-900 text-sm">{t("provider.current_orders")}</h4>
+                <span className="text-xs text-slate-500">5 {t("dashboard.recent")}</span>
               </div>
               
               <div className="overflow-x-auto">
-                <table className="w-full text-[13px] text-left">
+                <table className="w-full text-[13px] text-start">
                   <thead className="text-xs text-slate-900 font-bold bg-slate-50 border-b border-slate-100">
                     <tr>
-                      <th className="px-5 py-3 font-bold">Order ID</th>
-                      <th className="px-5 py-3 font-bold">Customer</th>
-                      <th className="px-5 py-3 font-bold">Type</th>
-                      <th className="px-5 py-3 font-bold">Status</th>
-                      <th className="px-5 py-3 font-bold">Date</th>
-                      <th className="px-5 py-3 font-bold">Actions</th>
+                      <th className="px-5 py-3 font-bold text-start">{t("provider.order_id")}</th>
+                      <th className="px-5 py-3 font-bold text-start">{t("provider.customer")}</th>
+                      <th className="px-5 py-3 font-bold text-start">{t("provider.service_type")}</th>
+                      <th className="px-5 py-3 font-bold text-start">{t("provider.status")}</th>
+                      <th className="px-5 py-3 font-bold text-start">{t("provider.order_date")}</th>
+                      <th className="px-5 py-3 font-bold text-start">{t("provider.action")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -172,24 +174,24 @@ export default function Dashboard() {
                         <tr key={req.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
                           <td className="px-5 py-3 font-medium text-slate-900">LOK-{req.id.toString().padStart(4, '0')}</td>
                           <td className="px-5 py-3 text-slate-600">{req.clientName}</td>
-                          <td className="px-5 py-3 text-slate-600">{req.Service?.name || 'Service Request'}</td>
+                          <td className="px-5 py-3 text-slate-600">{req.Service?.name || t("provider.service_request_fallback")}</td>
                           <td className="px-5 py-3">
-                            <span className={`px-2.5 py-1 text-[11px] font-bold rounded-full text-white inline-flex items-center
+                            <span className={`px-2.5 py-1 text-[11px] font-bold rounded-full text-white inline-flex items-center whitespace-nowrap
                               ${req.status === 'PENDING' ? 'bg-[#2a6892]' : 'bg-[#1b85ce]'}
                             `}>
-                              {req.status === 'PENDING' ? 'Pending' : req.status === 'ACCEPTED' ? 'In Progress' : req.status}
+                              {req.status === 'PENDING' ? t("orders.status.pending") : req.status === "ACCEPTED" ? t("orders.status.in_progress") : req.status}
                             </span>
                           </td>
                           <td className="px-5 py-3 text-slate-600">{new Date(req.createdAt).toLocaleDateString()}</td>
                           <td className="px-5 py-3">
-                            <Link href="#" className="text-slate-900 font-medium hover:underline">View</Link>
+                            <Link href={`/dashboard/orders/${req.id}`} className="text-slate-900 font-medium hover:underline">{t("provider.view")}</Link>
                           </td>
                         </tr>
                       ))
                     ) : (
                       <tr>
                         <td colSpan={6} className="px-5 py-8 text-center text-slate-500">
-                          No current orders.
+                          {t("provider.no_current_orders")}
                         </td>
                       </tr>
                     )}
@@ -201,8 +203,8 @@ export default function Dashboard() {
             {/* Services Managed */}
             <div>
               <div className="flex items-center justify-between mb-4">
-                <h4 className="font-bold text-slate-900">Services Managed</h4>
-                <Link href="/provider/services" className="text-sm font-bold text-blue-600 hover:underline">View All</Link>
+                <h4 className="font-bold text-slate-900">{t("provider.services_managed")}</h4>
+                <Link href="/provider/services" className="text-sm font-bold text-blue-600 hover:underline">{t("provider.view_all")}</Link>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
                 {services.length > 0 ? (
@@ -213,14 +215,14 @@ export default function Dashboard() {
                       </div>
                       <h5 className="font-bold text-slate-900 text-sm leading-tight mb-0.5">{service.name}</h5>
                       <span className="text-[11px] font-bold text-emerald-600 mb-2">
-                        Active
+                        {t("provider.active")}
                       </span>
-                      <p className="text-[11px] text-slate-500 mt-auto">Base price</p>
+                      <p className="text-[11px] text-slate-500 mt-auto">{t("provider.base_price")}</p>
                       <div className="flex items-center justify-between mt-0.5">
                         <span className="font-bold text-slate-900 text-sm">{service.price}</span>
                         <div className="flex gap-1">
                            <Link href="/provider/services" className="px-3 py-1.5 text-xs font-bold text-white bg-[#112331] hover:bg-slate-800 rounded-md transition-colors shadow-sm">
-                             Edit
+                             {t("common.edit")}
                            </Link>
                         </div>
                       </div>
@@ -228,8 +230,8 @@ export default function Dashboard() {
                   ))
                 ) : (
                   <div className="col-span-full py-8 text-center bg-white border border-slate-200 rounded-xl">
-                    <p className="text-slate-500 text-sm mb-3">You haven't added any services yet.</p>
-                    <Link href="/provider/services" className="text-sm font-bold text-blue-600 hover:underline">Add your first service</Link>
+                    <p className="text-slate-500 text-sm mb-3">{t("provider.no_services")}</p>
+                    <Link href="/provider/services" className="text-sm font-bold text-blue-600 hover:underline">{t("provider.create_first_service")}</Link>
                   </div>
                 )}
               </div>

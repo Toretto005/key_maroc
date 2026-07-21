@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 import {
   Plus, Pencil, Trash2, Loader2, X, Check, Clock, Tag, AlignLeft
 } from 'lucide-react';
@@ -23,6 +24,7 @@ type Props = {
 const emptyForm = { name: '', description: '', price: '', duration: '' };
 
 export default function ServicesSection({ providerId, providerUserId }: Props) {
+  const { t } = useLanguage();
   const supabase = createClient();
   const [services, setServices] = useState<Service[]>([]);
   const [isOwner, setIsOwner] = useState(false);
@@ -139,7 +141,7 @@ export default function ServicesSection({ providerId, providerUserId }: Props) {
     <section>
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-bold text-slate-900">Services Offered</h2>
+        <h2 className="text-xl font-bold text-slate-900">{t("services.offered")}</h2>
         {isOwner && (
           <button
             onClick={openAdd}
@@ -158,7 +160,7 @@ export default function ServicesSection({ providerId, providerUserId }: Props) {
         </div>
       ) : services.length === 0 ? (
         <div className="text-center py-10 bg-white rounded-2xl border border-dashed border-slate-200">
-          <p className="text-slate-400 text-sm">No services listed yet.</p>
+          <p className="text-slate-400 text-sm">{t("services.no_services")}</p>
           {isOwner && (
             <button onClick={openAdd} className="mt-3 text-blue-600 text-sm font-medium hover:underline">
               + Add your first service
@@ -170,7 +172,7 @@ export default function ServicesSection({ providerId, providerUserId }: Props) {
           {services.map(s => (
             <div key={s.id} className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm relative group">
               {isOwner && (
-                <div className="absolute top-3 right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                <div className="absolute top-3 end-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
                   <button
                     onClick={() => openEdit(s)}
                     className="p-1.5 rounded-lg bg-white/80 backdrop-blur shadow-sm hover:bg-white text-slate-600 hover:text-blue-600 transition-colors"
@@ -191,12 +193,12 @@ export default function ServicesSection({ providerId, providerUserId }: Props) {
               )}
 
               {s.imageUrl && (
-                <div className="w-[calc(100%+2.5rem)] h-32 -mt-5 -ml-5 mb-4 rounded-t-2xl overflow-hidden bg-slate-100 shrink-0">
+                <div className="w-[calc(100%+2.5rem)] h-32 -mt-5 -ms-5 mb-4 rounded-t-2xl overflow-hidden bg-slate-100 shrink-0">
                   <img src={s.imageUrl} alt={s.name} className="w-full h-full object-cover" />
                 </div>
               )}
 
-              <h3 className="font-bold text-slate-900 text-base mb-1 pr-16">{s.name}</h3>
+              <h3 className="font-bold text-slate-900 text-base mb-1 pe-16">{s.name}</h3>
               {s.description && (
                 <p className="text-slate-500 text-sm mb-3">{s.description}</p>
               )}
@@ -220,7 +222,7 @@ export default function ServicesSection({ providerId, providerUserId }: Props) {
                   onClick={() => setRequestingService(s)}
                   className="mt-4 w-full py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 font-bold text-sm rounded-xl transition-colors"
                 >
-                  Request Service
+                  {t("provider.request_service")}
                 </button>
               )}
             </div>
@@ -249,20 +251,20 @@ export default function ServicesSection({ providerId, providerUserId }: Props) {
                   type="text"
                   value={form.name}
                   onChange={e => setForm({ ...form, name: e.target.value })}
-                  placeholder="e.g. Emergency Lockout"
+                  placeholder={t("placeholder.service_name_alt")}
                   className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-sm"
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                  <span className="flex items-center gap-1.5"><AlignLeft className="w-3.5 h-3.5" /> Description</span>
+                  <span className="flex items-center gap-1.5"><AlignLeft className="w-3.5 h-3.5" /> {t("services.description")}</span>
                 </label>
                 <textarea
                   rows={2}
                   value={form.description}
                   onChange={e => setForm({ ...form, description: e.target.value })}
-                  placeholder="Brief description of the service..."
+                  placeholder={t("placeholder.brief_desc")}
                   className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-sm resize-none"
                 />
               </div>
@@ -270,7 +272,7 @@ export default function ServicesSection({ providerId, providerUserId }: Props) {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                    <span className="flex items-center gap-1.5"><Tag className="w-3.5 h-3.5" /> Price</span>
+                    <span className="flex items-center gap-1.5"><Tag className="w-3.5 h-3.5" /> {t("services.price")}</span>
                   </label>
                   <div className="flex rounded-xl border border-slate-200 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500 overflow-hidden transition-all">
                     <input
@@ -281,20 +283,20 @@ export default function ServicesSection({ providerId, providerUserId }: Props) {
                       placeholder="150"
                       className="flex-1 px-4 py-3 outline-none text-sm bg-white"
                     />
-                    <span className="px-3 flex items-center bg-slate-50 border-l border-slate-200 text-slate-500 font-semibold text-sm">
+                    <span className="px-3 flex items-center bg-slate-50 border-s border-slate-200 text-slate-500 font-semibold text-sm">
                       MAD
                     </span>
                   </div>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                    <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> Duration</span>
+                    <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> {t("services.duration")}</span>
                   </label>
                   <input
                     type="text"
                     value={form.duration}
                     onChange={e => setForm({ ...form, duration: e.target.value })}
-                    placeholder="e.g. 30 min"
+                    placeholder={t("placeholder.duration_alt")}
                     className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-sm"
                   />
                 </div>
@@ -342,7 +344,7 @@ export default function ServicesSection({ providerId, providerUserId }: Props) {
                   type="text"
                   value={reqForm.name}
                   onChange={e => setReqForm({ ...reqForm, name: e.target.value })}
-                  placeholder="e.g. Ali"
+                  placeholder={t("placeholder.name_ali")}
                   className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-sm"
                 />
               </div>
@@ -353,7 +355,7 @@ export default function ServicesSection({ providerId, providerUserId }: Props) {
                   type="tel"
                   value={reqForm.phone}
                   onChange={e => setReqForm({ ...reqForm, phone: e.target.value })}
-                  placeholder="e.g. 06..."
+                  placeholder={t("placeholder.phone_alt")}
                   className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-sm"
                 />
               </div>
@@ -364,7 +366,7 @@ export default function ServicesSection({ providerId, providerUserId }: Props) {
                   rows={2}
                   value={reqForm.notes}
                   onChange={e => setReqForm({ ...reqForm, notes: e.target.value })}
-                  placeholder="Any details the maker should know..."
+                  placeholder={t("placeholder.any_details")}
                   className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-sm resize-none"
                 />
               </div>

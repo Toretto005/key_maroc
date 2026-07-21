@@ -6,11 +6,13 @@ import { createClient } from '@/lib/supabase/client';
 import { Loader2, User, Phone, Settings as SettingsIcon, Mail } from 'lucide-react';
 import Link from 'next/link';
 import BackButton from '@/components/BackButton';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 export default function ClientProfile() {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const supabase = createClient();
+  const { t } = useLanguage();
 
   const [formData, setFormData] = useState({
     fullName: '',
@@ -60,13 +62,13 @@ export default function ClientProfile() {
           <div className="text-center mb-8">
             <div className="w-24 h-24 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-white shadow-sm overflow-hidden">
               {formData.avatarUrl ? (
-                <img src={formData.avatarUrl} alt="Profile" className="w-full h-full object-cover" />
+                <img src={formData.avatarUrl} alt={t("alt.profile")} className="w-full h-full object-cover" />
               ) : (
                 <span className="text-4xl font-bold">{formData.fullName.charAt(0) || 'C'}</span>
               )}
             </div>
             <h1 className="text-2xl font-bold text-slate-900">{formData.fullName || 'Client User'}</h1>
-            <p className="text-slate-500 text-sm mt-1">Client Account</p>
+            <p className="text-slate-500 text-sm mt-1">{t("profile.client_account")}</p>
           </div>
 
           <div className="space-y-4 mb-8">
@@ -75,8 +77,8 @@ export default function ClientProfile() {
                 <User className="w-5 h-5 text-slate-400" />
               </div>
               <div>
-                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-0.5">Full Name</p>
-                <p className="text-sm font-medium text-slate-800">{formData.fullName || 'Not provided'}</p>
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-0.5">{t("auth.full_name")}</p>
+                <p className="text-sm font-medium text-slate-800">{formData.fullName || t("profile.not_provided")}</p>
               </div>
             </div>
 
@@ -85,8 +87,8 @@ export default function ClientProfile() {
                 <Phone className="w-5 h-5 text-slate-400" />
               </div>
               <div>
-                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-0.5">Phone Number</p>
-                <p className="text-sm font-medium text-slate-800">{formData.phone || 'Not provided'}</p>
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-0.5">{t("profile.phone_number")}</p>
+                <p className="text-sm font-medium text-slate-800">{formData.phone || t("profile.not_provided")}</p>
               </div>
             </div>
 
@@ -95,19 +97,19 @@ export default function ClientProfile() {
                 <Mail className="w-5 h-5 text-slate-400" />
               </div>
               <div>
-                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-0.5">Email Address</p>
-                <p className="text-sm font-medium text-slate-800">{formData.email || 'Not provided'}</p>
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-0.5">{t("auth.email")}</p>
+                <p className="text-sm font-medium text-slate-800">{formData.email || t("profile.not_provided")}</p>
               </div>
             </div>
           </div>
 
-          <Link
-            href="/client/settings"
-            className="w-full flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 py-3 rounded-xl font-bold transition-all shadow-sm"
-          >
-            <SettingsIcon className="w-5 h-5" />
-            Edit Profile
-          </Link>
+            <Link
+              href="/client/settings"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-xl transition-all shadow-sm shadow-blue-200"
+            >
+              <SettingsIcon className="w-4 h-4" />
+              {t("profile.edit_profile")}
+            </Link>
         </div>
       </main>
     </div>

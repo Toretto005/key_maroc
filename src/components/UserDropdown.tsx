@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ChevronDown, User, LogOut } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 type UserDropdownProps = {
   name?: string;
@@ -13,6 +14,7 @@ type UserDropdownProps = {
 };
 
 export default function UserDropdown({ name, avatarUrl, profileLink = "/dashboard/profile" }: UserDropdownProps) {
+  const { t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -44,7 +46,7 @@ export default function UserDropdown({ name, avatarUrl, profileLink = "/dashboar
         {avatarUrl ? (
           <img 
             src={avatarUrl} 
-            alt="Profile" 
+            alt={t("alt.profile")} 
             className="w-8 h-8 rounded-full object-cover border border-slate-200 shrink-0"
           />
         ) : (
@@ -59,7 +61,7 @@ export default function UserDropdown({ name, avatarUrl, profileLink = "/dashboar
       </div>
 
       {isOpen && (
-        <div className="absolute right-0 mt-3 w-48 bg-white rounded-xl shadow-xl border border-slate-200 overflow-hidden z-50 transform origin-top-right transition-all">
+        <div className="absolute end-0 mt-3 w-48 bg-white rounded-xl shadow-xl border border-slate-200 overflow-hidden z-50 transform origin-top-right transition-all">
           <div className="py-1">
             <Link 
               href={profileLink}
@@ -67,7 +69,7 @@ export default function UserDropdown({ name, avatarUrl, profileLink = "/dashboar
               className="flex items-center gap-2 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
             >
               <User className="w-4 h-4 text-slate-400" />
-              <span>My Profile</span>
+              <span>{t("dropdown.my_profile")}</span>
             </Link>
             <div className="h-px bg-slate-100 my-1"></div>
             <button 
@@ -75,7 +77,7 @@ export default function UserDropdown({ name, avatarUrl, profileLink = "/dashboar
               className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
             >
               <LogOut className="w-4 h-4 text-red-500" />
-              <span>Log out</span>
+              <span>{t("dropdown.log_out")}</span>
             </button>
           </div>
         </div>

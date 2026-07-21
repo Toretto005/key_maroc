@@ -7,8 +7,10 @@ import { createClient } from '@/lib/supabase/client';
 import { Loader2, CheckCircle2 } from 'lucide-react';
 import LocationPickerWrapper from '@/components/LocationPickerWrapper';
 import BackButton from '@/components/BackButton';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 export default function CreateProvider() {
+  const { t } = useLanguage();
   const router = useRouter();
   const supabase = createClient();
   const [loading, setLoading] = useState(false);
@@ -52,7 +54,7 @@ export default function CreateProvider() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.lat || !formData.lng) {
-      alert("Please select your location on the map before submitting.");
+      alert(t("provider_edit.error_map"));
       return;
     }
 
@@ -68,11 +70,11 @@ export default function CreateProvider() {
       if (data.success) {
         router.push(`/provider/${data.provider.id}`);
       } else {
-        alert("Error creating profile. Please try again.");
+        alert(t("onboarding.error_create"));
       }
     } catch (error) {
       console.error(error);
-      alert("An unexpected error occurred.");
+      alert(t("provider_edit.error_unexpected"));
     } finally {
       setLoading(false);
     }
@@ -84,8 +86,8 @@ export default function CreateProvider() {
         <BackButton />
       </div>
       <div className="max-w-2xl mx-auto mb-8">
-        <h1 className="text-2xl font-bold text-slate-900">Join Sarouti as a Key Maker</h1>
-        <p className="text-slate-500 text-sm mt-0.5">Fill in your details and pin your location on the map.</p>
+        <h1 className="text-2xl font-bold text-slate-900">{t("onboarding.title")}</h1>
+        <p className="text-slate-500 text-sm mt-0.5">{t("onboarding.subtitle")}</p>
       </div>
 
       <form onSubmit={handleSubmit} className="max-w-2xl mx-auto space-y-6">
@@ -94,61 +96,66 @@ export default function CreateProvider() {
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
           <div className="flex items-center gap-2 mb-2">
             <span className="w-7 h-7 rounded-full bg-blue-600 text-white text-sm font-bold flex items-center justify-center">1</span>
-            <h2 className="font-semibold text-slate-900 text-lg">Your Business Info</h2>
+            <h2 className="font-semibold text-slate-900 text-lg">{t("onboarding.business_info")}</h2>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">Business / Provider Name *</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">{t("provider.business_name")}</label>
             <input
               required
               type="text"
               value={formData.name}
               onChange={e => setFormData({ ...formData, name: e.target.value })}
               className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-              placeholder="e.g. Express Locksmith Casablanca"
+              placeholder={t("placeholder.business_name")}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">Full Address *</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">{t("provider.full_address")}</label>
             <input
               required
               type="text"
               value={formData.address}
               onChange={e => setFormData({ ...formData, address: e.target.value })}
               className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-              placeholder="Street, Neighborhood, City"
+              placeholder={t("placeholder.address")}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">Phone Number *</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">{t("profile.phone_number")} *</label>
             <input
               required
               type="tel"
               value={formData.phone}
               onChange={e => setFormData({ ...formData, phone: e.target.value })}
               className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-              placeholder="e.g. +212 6 12 34 56 78"
+              placeholder={t("placeholder.phone")}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">About Your Services *</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">{t("provider.about_services")}</label>
             <textarea
               required
               rows={3}
               value={formData.about}
               onChange={e => setFormData({ ...formData, about: e.target.value })}
               className="w-full px-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all resize-none"
-              placeholder="Describe your experience, specializations, and availability..."
+              placeholder={t("placeholder.about")}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">Service Types (Skills) *</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">{t("provider.service_types")}</label>
             <div className="flex flex-wrap gap-3">
-              {['Emergency', 'Commercial', 'Auto', 'Residential'].map(type => {
+              {[
+                { value: 'Emergency', label: t("search.emergency") },
+                { value: 'Commercial', label: t("search.commercial") },
+                { value: 'Auto', label: t("search.auto") },
+                { value: 'Residential', label: t("search.residential") },
+              ].map(({ value: type, label }) => {
                 const currentSkills = formData.skills ? formData.skills.split(',').map(s => s.trim()).filter(Boolean) : [];
                 const isSelected = currentSkills.includes(type);
                 return (
@@ -168,7 +175,7 @@ export default function CreateProvider() {
                         : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
                     }`}
                   >
-                    {type}
+                    {label}
                   </button>
                 );
               })}
@@ -180,7 +187,7 @@ export default function CreateProvider() {
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
           <div className="flex items-center gap-2 mb-4">
             <span className="w-7 h-7 rounded-full bg-blue-600 text-white text-sm font-bold flex items-center justify-center">2</span>
-            <h2 className="font-semibold text-slate-900 text-lg">Pin Your Location</h2>
+            <h2 className="font-semibold text-slate-900 text-lg">{t("onboarding.pin_location")}</h2>
           </div>
 
           <LocationPickerWrapper onLocationSelected={handleLocationSelected} />
@@ -188,7 +195,7 @@ export default function CreateProvider() {
           {formData.lat && (
             <div className="mt-3 flex items-center gap-2 text-green-700 text-sm font-medium">
               <CheckCircle2 className="w-4 h-4 text-green-500" />
-              Location pinned successfully!
+              {t("provider.location_success")}
             </div>
           )}
         </div>
@@ -199,7 +206,7 @@ export default function CreateProvider() {
             href="/"
             className="flex-1 text-center px-6 py-4 rounded-xl font-semibold border-2 border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors"
           >
-            Cancel
+            {t("provider.cancel")}
           </Link>
           <button
             type="submit"
@@ -207,7 +214,7 @@ export default function CreateProvider() {
             className="flex-2 flex-1 flex items-center justify-center gap-2 bg-blue-600 text-white px-6 py-4 rounded-xl font-bold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-blue-100"
           >
             {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : null}
-            {loading ? "Creating Profile…" : "Create Profile →"}
+            {loading ? t("onboarding.creating_profile") : t("onboarding.create_profile")}
           </button>
         </div>
       </form>

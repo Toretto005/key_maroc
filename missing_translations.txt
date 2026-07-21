@@ -1,0 +1,42 @@
+src/app/auth/login/page.tsx:60: placeholder="moulsarout@example.com"
+src/app/auth/signup/page.tsx:102: placeholder="Moul Sarout"
+src/app/auth/signup/page.tsx:114: placeholder="moulsarout@example.com"
+src/app/client/profile/page.tsx:65: <img src={formData.avatarUrl} alt="Profile" className="w-full h-full object-cover" />
+src/app/client/settings/page.tsx:114: placeholder="John Doe"
+src/app/client/settings/page.tsx:131: placeholder="john@example.com"
+src/app/client/settings/page.tsx:175: <img src={formData.avatarUrl} alt="Profile" className="w-full h-full object-cover" />
+src/app/dashboard/orders/page.tsx:148: placeholder="Search orders..."
+src/app/dashboard/profile/page.tsx:81: alt="Cover"
+src/app/dashboard/profile/page.tsx:99: alt="Profile"
+src/app/provider/client/[phone]/page.tsx:187: <label className="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wide">Rating</label>
+src/app/provider/client/[phone]/page.tsx:208: placeholder="How was the experience?"
+src/app/provider/edit/page.tsx:206: alt="Avatar Preview"
+src/app/provider/edit/page.tsx:234: alt="Banner Preview"
+src/app/provider/edit/page.tsx:265: placeholder="e.g. Express Locksmith Casablanca"
+src/app/provider/edit/page.tsx:277: placeholder="Street, Neighborhood, City"
+src/app/provider/edit/page.tsx:290: placeholder="e.g. +212 6 12 34 56 78"
+src/app/provider/edit/page.tsx:301: placeholder="e.g. contact@domain.com"
+src/app/provider/edit/page.tsx:314: placeholder="Describe your experience, specializations, and availability..."
+src/app/provider/edit/page.tsx:356: placeholder="e.g. ALOA Certified&#10;Registered NY Locksmith"
+src/app/provider/edit/page.tsx:367: placeholder="e.g. Mon-Fri: 8am-8pm&#10;Sat-Sun: Emergency Only"
+src/app/provider/new/page.tsx:108: placeholder="e.g. Express Locksmith Casablanca"
+src/app/provider/new/page.tsx:120: placeholder="Street, Neighborhood, City"
+src/app/provider/new/page.tsx:132: placeholder="e.g. +212 6 12 34 56 78"
+src/app/provider/new/page.tsx:144: placeholder="Describe your experience, specializations, and availability..."
+src/app/provider/services/page.tsx:266: placeholder="e.g. Standard Key Duplication"
+src/app/provider/services/page.tsx:276: <img src={formData.imageUrl} alt="Preview" className="w-full h-full object-cover" />
+src/app/provider/services/page.tsx:310: placeholder="Describe what this service includes..."
+src/app/provider/services/page.tsx:322: placeholder="e.g. 50 MAD or Starting at 100 MAD"
+src/app/provider/services/page.tsx:334: placeholder="e.g. 15 mins, 1 hour"
+src/components/LocationPicker.tsx:127: attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+src/components/ProviderMap.tsx:37: attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+src/components/RequestQuoteModal.tsx:126: placeholder="John Doe"
+src/components/RequestQuoteModal.tsx:147: placeholder="Describe what you need help with..."
+src/components/SearchMap.tsx:153: attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+src/components/ServicesSection.tsx:252: placeholder="e.g. Emergency Lockout"
+src/components/ServicesSection.tsx:265: placeholder="Brief description of the service..."
+src/components/ServicesSection.tsx:297: placeholder="e.g. 30 min"
+src/components/ServicesSection.tsx:345: placeholder="e.g. Ali"
+src/components/ServicesSection.tsx:356: placeholder="e.g. 06..."
+src/components/ServicesSection.tsx:367: placeholder="Any details the maker should know..."
+src/components/UserDropdown.tsx:47: alt="Profile"

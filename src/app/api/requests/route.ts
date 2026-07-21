@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/server';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { providerId, serviceId, clientName, clientPhone, notes } = body;
+    const { providerId, serviceId, clientName, clientPhone, clientAvatar, notes } = body;
 
     if (!providerId || !clientName || !clientPhone) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -19,6 +19,7 @@ export async function POST(request: Request) {
           serviceId,
           clientName,
           clientPhone,
+          clientAvatar,
           notes,
           status: 'PENDING'
         }
@@ -63,7 +64,7 @@ export async function GET(request: Request) {
     // Then fetch requests for those providers, and join the Service details
     const { data: requests, error: reqError } = await supabaseAdmin
       .from('ServiceRequest')
-      .select('*, Service(name)')
+      .select('*, Service(name, imageUrl)')
       .in('providerId', providerIds)
       .order('createdAt', { ascending: false });
 

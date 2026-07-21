@@ -6,6 +6,8 @@ import Link from 'next/link';
 import { Wrench, LogOut, User, LogIn, Home, Search, Info, Mail, LayoutDashboard, Settings, Calendar, Users, ClipboardList, Hexagon, Menu, X, MessageSquare } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import type { User as SupabaseUser } from '@supabase/supabase-js';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 const NavLink = ({ href, icon: Icon, label, exact = false, onClick }: { href: string, icon: React.ElementType, label: string, exact?: boolean, onClick?: () => void }) => {
   const pathname = usePathname();
@@ -19,7 +21,7 @@ const NavLink = ({ href, icon: Icon, label, exact = false, onClick }: { href: st
     <Link 
       href={href} 
       onClick={onClick}
-      className={`flex items-center gap-3 px-4 py-3 rounded-r-full transition-colors mr-4 ${
+      className={`flex items-center gap-3 px-4 py-3 rounded-e-full transition-colors me-4 ${
         isActive 
           ? 'bg-[#1b344a] text-white font-medium shadow-sm' 
           : 'text-slate-400 hover:text-white hover:bg-[#1b344a]/50 font-medium'
@@ -37,6 +39,7 @@ export default function Sidebar() {
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
+  const { t } = useLanguage();
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -58,6 +61,7 @@ export default function Sidebar() {
   };
 
   const role = user?.user_metadata?.role;
+  const homeHref = role === 'maker' ? '/dashboard' : '/';
 
   const closeMenu = () => setIsOpen(false);
 
@@ -65,16 +69,19 @@ export default function Sidebar() {
     <>
       {/* Mobile Top Bar */}
       <div className="md:hidden flex items-center justify-between p-4 bg-[#112331] text-white shrink-0 z-40 relative">
-        <Link href="/" className="flex items-center gap-2 font-bold text-white text-lg">
+        <Link href={homeHref} className="flex items-center gap-2 font-bold text-white text-lg">
           <div className="relative flex items-center justify-center">
             <Hexagon className="w-6 h-6 text-blue-400 fill-blue-400/20" />
             <Wrench className="w-3 h-3 text-blue-400 absolute" />
           </div>
           Sarouti
         </Link>
-        <button onClick={() => setIsOpen(true)} className="p-1 hover:bg-slate-800 rounded-lg transition-colors">
-          <Menu className="w-6 h-6" />
-        </button>
+        <div className="flex items-center gap-2">
+          <LanguageSwitcher />
+          <button onClick={() => setIsOpen(true)} className="p-1 hover:bg-slate-800 rounded-lg transition-colors">
+            <Menu className="w-6 h-6" />
+          </button>
+        </div>
       </div>
 
       {/* Mobile Drawer Overlay */}
@@ -86,13 +93,13 @@ export default function Sidebar() {
       )}
 
       {/* Sidebar Container (Desktop & Mobile Drawer) */}
-      <aside className={`fixed md:sticky top-0 left-0 z-50 h-screen w-64 bg-[#112331] shadow-2xl md:shadow-xl text-slate-300 flex flex-col flex-shrink-0 transition-transform duration-300 ease-in-out md:translate-x-0 ${
-        isOpen ? 'translate-x-0' : '-translate-x-full'
+      <aside className={`fixed md:sticky top-0 start-0 z-50 h-screen w-64 bg-[#112331] shadow-2xl md:shadow-xl text-slate-300 flex flex-col flex-shrink-0 transition-transform duration-300 ease-in-out md:translate-x-0 ${
+        isOpen ? 'translate-x-0' : 'max-md:-translate-x-full max-md:rtl:translate-x-full'
       }`}>
         
         {/* Logo & Mobile Close Button */}
         <div className="p-6 flex items-center justify-between">
-          <Link href="/" onClick={closeMenu} className="flex items-center gap-2 font-bold text-white text-xl">
+          <Link href={homeHref} onClick={closeMenu} className="flex items-center gap-2 font-bold text-white text-xl">
             <div className="relative flex items-center justify-center">
               <Hexagon className="w-8 h-8 text-blue-400 fill-blue-400/20" />
               <Wrench className="w-4 h-4 text-blue-400 absolute" />
@@ -109,29 +116,29 @@ export default function Sidebar() {
           
           {user && role === 'maker' ? (
             <>
-              <NavLink href="/dashboard" icon={LayoutDashboard} label="Dashboard" exact={true} onClick={closeMenu} />
-              <NavLink href="/dashboard/orders" icon={ClipboardList} label="Orders" onClick={closeMenu} />
-              <NavLink href="/provider/services" icon={Wrench} label="Services" onClick={closeMenu} />
-              <NavLink href="/dashboard/calendar" icon={Calendar} label="Calendar" onClick={closeMenu} />
-              <NavLink href="/dashboard/clients" icon={Users} label="Clients" onClick={closeMenu} />
-              <NavLink href="/provider/edit" icon={Settings} label="Settings" onClick={closeMenu} />
-              <NavLink href="/dashboard/profile" icon={User} label="Profile" onClick={closeMenu} />
+              <NavLink href="/dashboard" icon={LayoutDashboard} label={t("nav.dashboard")} exact={true} onClick={closeMenu} />
+              <NavLink href="/dashboard/orders" icon={ClipboardList} label={t("nav.orders")} onClick={closeMenu} />
+              <NavLink href="/provider/services" icon={Wrench} label={t("nav.services")} onClick={closeMenu} />
+              <NavLink href="/dashboard/calendar" icon={Calendar} label={t("nav.calendar")} onClick={closeMenu} />
+              <NavLink href="/dashboard/clients" icon={Users} label={t("nav.clients")} onClick={closeMenu} />
+              <NavLink href="/provider/edit" icon={Settings} label={t("nav.settings")} onClick={closeMenu} />
+              <NavLink href="/dashboard/profile" icon={User} label={t("nav.profile")} onClick={closeMenu} />
             </>
           ) : user && role === 'client' ? (
             <>
-              <NavLink href="/client/dashboard" icon={Home} label="Home" onClick={closeMenu} />
-              <NavLink href="/search" icon={Search} label="Find Locksmith" onClick={closeMenu} />
-              <NavLink href="/client/orders" icon={Calendar} label="My Bookings" onClick={closeMenu} />
-              <NavLink href="/client/messages" icon={MessageSquare} label="Messages" onClick={closeMenu} />
-              <NavLink href="/client/profile" icon={User} label="Profile" exact={true} onClick={closeMenu} />
-              <NavLink href="/client/settings" icon={Settings} label="Settings" onClick={closeMenu} />
+              <NavLink href="/client/dashboard" icon={Home} label={t("nav.home")} onClick={closeMenu} />
+              <NavLink href="/search" icon={Search} label={t("nav.find_locksmith")} onClick={closeMenu} />
+              <NavLink href="/client/orders" icon={Calendar} label={t("nav.my_bookings")} onClick={closeMenu} />
+              <NavLink href="/client/messages" icon={MessageSquare} label={t("nav.messages")} onClick={closeMenu} />
+              <NavLink href="/client/profile" icon={User} label={t("nav.profile")} exact={true} onClick={closeMenu} />
+              <NavLink href="/client/settings" icon={Settings} label={t("nav.settings")} onClick={closeMenu} />
             </>
           ) : (
             <>
-              <NavLink href="/" icon={Home} label="Home" onClick={closeMenu} />
-              <NavLink href="/search" icon={Search} label="Find Locksmith" onClick={closeMenu} />
-              <NavLink href="/about" icon={Info} label="About Us" onClick={closeMenu} />
-              <NavLink href="/contact" icon={Mail} label="Contact" onClick={closeMenu} />
+              <NavLink href="/" icon={Home} label={t("nav.home")} onClick={closeMenu} />
+              <NavLink href="/search" icon={Search} label={t("nav.find_locksmith")} onClick={closeMenu} />
+              <NavLink href="/about" icon={Info} label={t("nav.about")} onClick={closeMenu} />
+              <NavLink href="/contact" icon={Mail} label={t("nav.contact")} onClick={closeMenu} />
             </>
           )}
         </nav>
@@ -145,24 +152,25 @@ export default function Sidebar() {
                 className="flex items-center gap-3 px-4 py-3 w-full rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors font-medium text-sm"
               >
                 <LogOut className="w-5 h-5" />
-                <span>Logout</span>
+                <span>{t("nav.logout")}</span>
               </button>
             ) : (
               <div className="space-y-2">
                 <Link 
-                  href="/auth/login"
+                  href="/auth/login" 
                   onClick={closeMenu}
-                  className="flex items-center justify-center gap-2 w-full px-4 py-2 text-sm font-medium text-white bg-slate-800 hover:bg-slate-700 rounded-xl transition-colors"
+                  className="flex items-center gap-3 px-4 py-3 w-full rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition-colors font-medium text-sm"
                 >
-                  <LogIn className="w-4 h-4" />
-                  Sign In
+                  <LogIn className="w-5 h-5" />
+                  <span>{t("nav.login")}</span>
                 </Link>
                 <Link 
                   href="/auth/signup"
-                  onClick={closeMenu}
-                  className="flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition-colors shadow-sm"
+                  onClick={closeMenu} 
+                  className="flex items-center justify-center gap-2 px-4 py-3 w-full rounded-xl bg-blue-600 hover:bg-blue-500 text-white transition-colors font-medium text-sm mt-2"
                 >
-                  Join as Provider
+                  <User className="w-4 h-4" />
+                  <span>{t("nav.signup")}</span>
                 </Link>
               </div>
             )

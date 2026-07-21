@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from "react-leaflet";
 import L from "leaflet";
 import { MapPin, Loader2 } from "lucide-react";
@@ -46,6 +47,8 @@ type Props = {
 };
 
 export default function LocationPicker({ onLocationSelected }: Props) {
+  const { t } = useLanguage();
+
   const [selected, setSelected] = useState<LatLng | null>(null);
   const [locating, setLocating] = useState(false);
 
@@ -100,7 +103,7 @@ export default function LocationPicker({ onLocationSelected }: Props) {
             </span>
           ) : (
             <span className="text-blue-700">
-              Click on the map to pin your exact location.
+              {t("location.click_map")}.
             </span>
           )}
         </div>
@@ -108,10 +111,10 @@ export default function LocationPicker({ onLocationSelected }: Props) {
           type="button"
           onClick={handleLocateMe}
           disabled={locating}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors flex-shrink-0 ml-3"
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors flex-shrink-0 ms-3"
         >
           {locating ? <Loader2 className="w-4 h-4 animate-spin" /> : <MapPin className="w-4 h-4" />}
-          {locating ? "Locating…" : "Use My Location"}
+          {locating ? t("location.locating") : t("location.use_my_location")}
         </button>
       </div>
 

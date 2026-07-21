@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client';
 import { Loader2, ArrowLeft, User, Phone, Star, MessageSquare } from 'lucide-react';
 import NotificationBell from '@/components/NotificationBell';
 import UserDropdown from '@/components/UserDropdown';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 type Review = {
   id: number;
@@ -20,6 +21,7 @@ type Review = {
 };
 
 export default function ClientProfilePage() {
+  const { t } = useLanguage();
   const router = useRouter();
   const params = useParams();
   const searchParams = useSearchParams();
@@ -132,10 +134,10 @@ export default function ClientProfilePage() {
         <div className="text-slate-800 font-medium flex items-center gap-2 text-sm">
           <Link href="/dashboard/orders" className="flex items-center gap-1 text-slate-500 hover:text-slate-900 transition-colors">
             <ArrowLeft className="w-4 h-4" />
-            <span>Back to Orders</span>
+            <span>{t("client_detail.back")}</span>
           </Link>
           <span className="text-slate-300 mx-2">/</span>
-          <span className="text-slate-900 font-bold truncate max-w-[150px] sm:max-w-none">{profile?.name || 'Loading...'}</span>
+          <span className="text-slate-900 font-bold truncate max-w-[150px] sm:max-w-none">{profile?.name || t("dashboard.loading")}</span>
           <span className="text-slate-400">| Client Profile</span>
         </div>
       </header>
@@ -166,12 +168,12 @@ export default function ClientProfilePage() {
                   <div className="text-2xl font-bold text-slate-900 flex items-center justify-center gap-1">
                     {avgRating} <Star className="w-5 h-5 fill-amber-400 text-amber-400" />
                   </div>
-                  <div className="text-xs text-slate-500 uppercase tracking-wider font-semibold mt-1">Rating</div>
+                  <div className="text-xs text-slate-500 uppercase tracking-wider font-semibold mt-1">{t("client_detail.rating")}</div>
                 </div>
                 <div className="w-px h-8 bg-slate-200"></div>
                 <div className="text-center">
                   <div className="text-2xl font-bold text-slate-900">{reviews.length}</div>
-                  <div className="text-xs text-slate-500 uppercase tracking-wider font-semibold mt-1">Reviews</div>
+                  <div className="text-xs text-slate-500 uppercase tracking-wider font-semibold mt-1">{t("client_detail.reviews")}</div>
                 </div>
               </div>
             </div>
@@ -184,7 +186,7 @@ export default function ClientProfilePage() {
               </h3>
               <form onSubmit={handleSubmitReview} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wide">Rating</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wide">{t("client_detail.rating")}</label>
                   <div className="flex items-center gap-2">
                     {[1, 2, 3, 4, 5].map(star => (
                       <button
@@ -205,7 +207,7 @@ export default function ClientProfilePage() {
                     value={newComment}
                     onChange={e => setNewComment(e.target.value)}
                     className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all resize-none"
-                    placeholder="How was the experience?"
+                    placeholder={t("placeholder.review_exp")}
                   ></textarea>
                 </div>
                 <button
@@ -221,7 +223,7 @@ export default function ClientProfilePage() {
 
           {/* Right Column: Reviews List */}
           <div className="w-full md:w-2/3 bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-            <h2 className="text-lg font-bold text-slate-900 mb-6">Provider Feedback</h2>
+            <h2 className="text-lg font-bold text-slate-900 mb-6">{t("client_feedback.title")}</h2>
             
             {reviewsLoading ? (
               <div className="flex justify-center py-12">
@@ -230,8 +232,8 @@ export default function ClientProfilePage() {
             ) : reviews.length === 0 ? (
               <div className="text-center py-12 bg-slate-50 rounded-xl border border-dashed border-slate-200">
                 <User className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-                <p className="text-slate-500 font-medium">No reviews for this client yet.</p>
-                <p className="text-sm text-slate-400 mt-1">Be the first to leave feedback!</p>
+                <p className="text-slate-500 font-medium">{t("client_feedback.no_reviews")}</p>
+                <p className="text-sm text-slate-400 mt-1">{t("client_feedback.be_first")}</p>
               </div>
             ) : (
               <div className="space-y-4">
@@ -257,7 +259,7 @@ export default function ClientProfilePage() {
                       </div>
                     </div>
                     {review.comment && (
-                      <p className="text-sm text-slate-700 pl-13">"{review.comment}"</p>
+                      <p className="text-sm text-slate-700 ps-13">"{review.comment}"</p>
                     )}
                   </div>
                 ))}

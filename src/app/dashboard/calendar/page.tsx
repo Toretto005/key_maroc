@@ -8,6 +8,7 @@ import { MessageSquare, ChevronDown, ArrowLeft, ChevronLeft, ChevronRight, Loade
 import NotificationBell from '@/components/NotificationBell';
 import UserDropdown from '@/components/UserDropdown';
 import BackButton from '@/components/BackButton';
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 type ServiceRequest = {
   id: number;
@@ -24,6 +25,7 @@ export default function CalendarPage() {
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<any>(null);
   const [currentDate, setCurrentDate] = useState(new Date());
+  const { t } = useLanguage();
   
   const router = useRouter();
   const supabase = createClient();
@@ -116,10 +118,10 @@ export default function CalendarPage() {
   
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'ACCEPTED': return <CheckCircle2 className="w-3 h-3 inline mr-1" />;
-      case 'COMPLETED': return <CheckCircle2 className="w-3 h-3 inline mr-1" />;
-      case 'DECLINED': return <XCircle className="w-3 h-3 inline mr-1" />;
-      default: return <Clock className="w-3 h-3 inline mr-1" />; // PENDING
+      case 'ACCEPTED': return <CheckCircle2 className="w-3 h-3 inline me-1" />;
+      case 'COMPLETED': return <CheckCircle2 className="w-3 h-3 inline me-1" />;
+      case 'DECLINED': return <XCircle className="w-3 h-3 inline me-1" />;
+      default: return <Clock className="w-3 h-3 inline me-1" />; // PENDING
     }
   };
 
@@ -131,18 +133,18 @@ export default function CalendarPage() {
     );
   }
 
-  const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-  const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const monthNames = t("calendar.months").split(',');
+  const dayNames = t("calendar.days").split(',');
 
   return (
     <div className="min-h-screen bg-[#f1f5f9] w-full font-sans">
       {/* Top Header */}
       <header className="h-16 bg-white border-b border-slate-200 px-4 md:px-6 flex items-center sticky top-0 z-40">
         <div className="text-slate-800 font-medium flex items-center gap-2 text-sm">
-          <Link href="/dashboard" className="text-slate-400 hover:text-slate-600 transition-colors mr-1">
+          <Link href="/dashboard" className="text-slate-400 hover:text-slate-600 transition-colors me-1">
             <ArrowLeft className="w-4 h-4" />
           </Link>
-          <span className="truncate max-w-[120px] sm:max-w-none">{profile?.name || 'Loading...'}</span>
+          <span className="truncate max-w-[120px] sm:max-w-none">{profile?.name || t("dashboard.loading")}</span>
           <span className="hidden sm:inline text-slate-400">| Locksmith Pro</span>
         </div>
       </header>
@@ -155,9 +157,9 @@ export default function CalendarPage() {
           <div>
             <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
               <CalendarIcon className="w-6 h-6 text-blue-600" />
-              Schedule & Calendar
+              {t("provider.calendar_title")}
             </h1>
-            <p className="text-slate-500 text-sm mt-1">View your requested services and appointments</p>
+            <p className="text-slate-500 text-sm mt-1">{t("provider.calendar_subtitle")}</p>
           </div>
           
           <div className="flex items-center bg-white rounded-xl border border-slate-200 shadow-sm p-1">
@@ -221,7 +223,7 @@ export default function CalendarPage() {
                         </div>
                         <div className="truncate opacity-90 flex items-center">
                           {getStatusIcon(req.status)}
-                          {req.Service?.name || 'General Request'}
+                          {req.Service?.name || t("provider.general_request")}
                         </div>
                       </Link>
                     ))}

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup, Tooltip, useMap } from "react-leaflet";
 import { useRouter } from "next/navigation";
+import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { Locate, Loader2 } from "lucide-react";
 import L from "leaflet";
 
@@ -83,6 +84,7 @@ export default function SearchMap({
   const router = useRouter();
   const [map, setMap] = useState<L.Map | null>(null);
   const [locating, setLocating] = useState(false);
+  const { t } = useLanguage();
 
   const handleLocateMe = () => {
     if (!map) return;
@@ -156,7 +158,7 @@ export default function SearchMap({
       {showUserMarker && (
         <Marker position={[userLat, userLng]} icon={userIcon}>
           <Popup>
-            <div className="font-semibold text-blue-600">Your Location</div>
+            <div className="font-semibold text-blue-600">{t("map.your_location")}</div>
           </Popup>
         </Marker>
       )}
@@ -216,7 +218,7 @@ export default function SearchMap({
                   href={`/provider/${provider.id}`}
                   className="w-full block text-center bg-blue-600 hover:bg-blue-700 !text-white text-sm font-bold py-2 px-4 rounded-xl transition-colors shadow-sm mt-1"
                 >
-                  View Profile
+                  {t("common.book")}
                 </a>
               </div>
             </Popup>
@@ -231,7 +233,7 @@ export default function SearchMap({
     <button
       onClick={handleLocateMe}
       disabled={locating}
-      className="absolute bottom-6 right-6 z-[1000] w-12 h-12 bg-white rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.15)] flex items-center justify-center text-slate-700 hover:text-blue-600 hover:bg-slate-50 transition-all border border-slate-200"
+      className="absolute bottom-6 end-6 z-[1000] w-12 h-12 bg-white rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.15)] flex items-center justify-center text-slate-700 hover:text-blue-600 hover:bg-slate-50 transition-all border border-slate-200"
       title="Locate Me"
     >
       {locating ? (
